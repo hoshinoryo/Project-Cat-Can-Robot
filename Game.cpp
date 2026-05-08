@@ -10,8 +10,10 @@
 #include "Block.h"
 #include "player.h"
 #include "Bg.h"
+#include "Camera.h"
 
 static int g_AudioBGM;
+static PlayerCamera g_PlayerCamera;
 
 
 void InitGame()
@@ -55,6 +57,9 @@ void UpdateGame()
 
 void DrawGame()
 {
+	BeginRenderer3D();
+	BeginRenderer2D();
+
 	DrawBg();
 	//DrawField();
 	DrawBlock();

@@ -30,9 +30,6 @@ using namespace DirectX;
 #pragma comment (lib, "winmm.lib")
 
 
-#define SCREEN_WIDTH	(1280)
-#define SCREEN_HEIGHT	(720)
-
 #define BLOCK_COLS		(6)	//ブロックスタック横の数
 #define BLOCK_ROWS		(13)//ブロックスタック縦の数
 
