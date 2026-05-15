@@ -3,12 +3,8 @@
 #include "Manager.h"
 
 
-
-
 #define APP_NAME "DX21"
 #define CLASS_NAME "DX21"
-
-
 
 
 HINSTANCE   g_Instance;
@@ -29,9 +25,6 @@ HWND GetWindow()
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 
-
-
-
 int APIENTRY wWinMain(  _In_ HINSTANCE hInstance,
                         _In_opt_ HINSTANCE hPrevInstance,
                         _In_ LPWSTR    lpCmdLine,
@@ -41,20 +34,13 @@ int APIENTRY wWinMain(  _In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-
     g_Instance = hInstance;
     g_FullWindow = false;
-
-
-
 
     int windowWidth, windowHeight;
 
     windowWidth = 1280;
     windowHeight = 720;
-
-
-
 
     {
         WNDCLASSEX wcex;
@@ -84,19 +70,13 @@ int APIENTRY wWinMain(  _In_ HINSTANCE hInstance,
             rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, g_Instance, nullptr);
     }
 
-
     CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
 
-
     InitManager();
-
-
 
     {
 
         ShowWindow(g_Window, SW_SHOW);
-
-
 
         //フレームカウント初期化
         DWORD dwExecLastTime;
@@ -107,7 +87,6 @@ int APIENTRY wWinMain(  _In_ HINSTANCE hInstance,
 
         while (true)
         {
-
             //DWORD frame = 0;
             MSG msg;
 

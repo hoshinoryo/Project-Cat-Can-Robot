@@ -1,5 +1,6 @@
 #include "Main.h"
-#include "Renderer.h"
+#include "Renderer2D.h"
+#include "Renderer3D.h"
 #include "Manager.h"
 #include "Sprite.h"
 #include "Game.h"
@@ -57,9 +58,8 @@ void UpdateGame()
 
 void DrawGame()
 {
-	BeginRenderer3D();
-	BeginRenderer2D();
-
+	// 2D Drawing
+	Renderer2D_Begin();
 	DrawBg();
 	//DrawField();
 	DrawBlock();
@@ -67,4 +67,6 @@ void DrawGame()
 	//DrawEffect();
 	DrawPlayer();
 
+	// 3D Drawing
+	Renderer3D_Begin();
 }

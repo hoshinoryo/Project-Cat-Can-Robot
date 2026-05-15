@@ -1,6 +1,12 @@
 #include "Main.h"
 #include "Manager.h"
-#include "Renderer.h"
+
+// ---- Rendering setting ----
+#include "Renderer2D.h"
+#include "Renderer3D.h"
+#include "Renderer_Manager.h"
+// ---------------------------
+
 #include "Sprite.h"
 #include "Input.h"
 #include "Audio.h"
@@ -16,7 +22,10 @@ static SCENE g_Scene = SCENE_NONE;
 
 void InitManager()
 {
-	InitRenderer();
+	RendererManager_Initialize();
+	Renderer3D_Initialize();
+	Renderer2D_Initialize();
+
 	InitSprite();
 	InitAudio();
 
@@ -28,10 +37,12 @@ void UninitManager()
 {
 	SetScene(SCENE_NONE);
 
-
 	UninitAudio();
 	UninitSprite();
-	UninitRenderer();
+
+	Renderer2D_Finalize();
+	Renderer3D_Finalize();
+	RendererManager_Finalize();
 }
 
 void UpdateManager()
@@ -63,7 +74,7 @@ void UpdateManager()
 
 void DrawManager()
 {
-	BeginRenderer();
+	RendererManager_BeginFrame();
 
 	switch (g_Scene)
 	{
@@ -87,7 +98,7 @@ void DrawManager()
 	}
 
 
-	EndRenderer();
+	RendererManager_EndFrame();
 }
 
 

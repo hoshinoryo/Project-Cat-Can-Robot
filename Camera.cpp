@@ -8,7 +8,7 @@
 ==============================================================================*/
 
 #include "Camera.h"
-#include "Renderer.h"
+#include "Renderer_Manager.h"
 //#include "mouse.h"
 
 #include <DirectXMath.h>
@@ -20,22 +20,23 @@ using namespace DirectX;
 static const float MIN_PITCH = XMConvertToRadians(91.0f);
 static const float MAX_PITCH = XMConvertToRadians(179.0f);
 
+// D3D device and device context
+static ID3D11Device* g_Device = RendererManager_GetDevice();
+static ID3D11DeviceContext* g_DeviceContext = RendererManager_GetDeviceContext();
+
 
 bool PlayerCamera::Initialize()
 {
-	ID3D11Device* device = GetDevice();
-	if (!device) return false;
-
 	D3D11_BUFFER_DESC buffer_desc{};
 	buffer_desc.ByteWidth = sizeof(XMFLOAT4X4);
 	buffer_desc.Usage = D3D11_USAGE_DEFAULT;
 	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	buffer_desc.CPUAccessFlags = 0;
 
-	if (FAILED(device->CreateBuffer(&buffer_desc, nullptr, &m_pVSConstantBufferView)))
+	if (FAILED(g_Device->CreateBuffer(&buffer_desc, nullptr, &m_pVSConstantBufferView)))
 		return false;
 
-	if (FAILED(device->CreateBuffer(&buffer_desc, nullptr, &m_pVSConstantBufferProj)))
+	if (FAILED(g_Device->CreateBuffer(&buffer_desc, nullptr, &m_pVSConstantBufferProj)))
 		return false;
 
 	XMStoreFloat4x4(&m_View, XMMatrixIdentity());
@@ -71,9 +72,8 @@ void PlayerCamera::Update(double elapsed_time)
 	//UpdateInput(elapsed_time);
 	UpdateMatrices();
 
-	ID3D11DeviceContext* ctx = GetDeviceContext();
-	ctx->VSSetConstantBuffers(1, 1, &m_pVSConstantBufferView);
-	ctx->VSSetConstantBuffers(2, 1, &m_pVSConstantBufferProj);
+	g_DeviceContext->VSSetConstantBuffers(1, 1, &m_pVSConstantBufferView);
+	g_DeviceContext->VSSetConstantBuffers(2, 1, &m_pVSConstantBufferProj);
 }
 
 /*
@@ -147,7 +147,6 @@ void PlayerCamera::UpdateMatrices()
 	XMStoreFloat4x4(&viewT, XMMatrixTranspose(view));
 	XMStoreFloat4x4(&projT, XMMatrixTranspose(proj));
 
-	ID3D11DeviceContext* ctx = GetDeviceContext();
-	ctx->UpdateSubresource(m_pVSConstantBufferView, 0, nullptr, &viewT, 0, 0);
-	ctx->UpdateSubresource(m_pVSConstantBufferProj, 0, nullptr, &projT, 0, 0);
+	g_DeviceContext->UpdateSubresource(m_pVSConstantBufferView, 0, nullptr, &viewT, 0, 0);
+	g_DeviceContext->UpdateSubresource(m_pVSConstantBufferProj, 0, nullptr, &projT, 0, 0);
 }

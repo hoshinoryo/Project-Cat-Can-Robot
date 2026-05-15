@@ -1,11 +1,11 @@
 
 
 #include "main.h"
-#include "Renderer.h"
+#include "Renderer_Manager.h"
 #include "Player.h"
 #include "sprite.h"
 #include "Input.h"
-#include	"Block.h"
+#include "Block.h"
 #include "collision.h"
 
 //PCとSwitchは座標系が異なるので、このまま使えないから調整する
@@ -17,12 +17,10 @@
 #define	GRAVITY			(9.8f/60.0f*6.0f)		//重力加速度　適当に
 
 //	この座標範囲を出たらスクロースする
-#define		SCROLL_LIMIT_UP		(SCREEN_HEIGHT/4)
-#define		SCROLL_LIMIT_DOWN	(SCREEN_HEIGHT - (SCREEN_HEIGHT/4))
-#define		SCROLL_LIMIT_LEFT	(SCREEN_WIDTH/4)
-#define		SCROLL_LIMIT_RIGHT	(SCREEN_WIDTH - (SCREEN_WIDTH/4))
-
-
+#define		SCROLL_LIMIT_UP		(SCREEN_HEIGHT / 4)
+#define		SCROLL_LIMIT_DOWN	(SCREEN_HEIGHT - (SCREEN_HEIGHT / 4))
+#define		SCROLL_LIMIT_LEFT	(SCREEN_WIDTH / 4)
+#define		SCROLL_LIMIT_RIGHT	(SCREEN_WIDTH - (SCREEN_WIDTH / 4))
 
 //bool	CollisionBlock();
 
@@ -49,8 +47,13 @@ void	InitPlayer()
 	ScratchImage	image;
 	LoadFromWICFile(L"Asset\\Texture\\Block.png", WIC_FLAGS_NONE, &metadata, image);
 	//読み込んだ画像データをDirectXへ渡してテクスチャとして管理させる
-	CreateShaderResourceView(GetDevice(), image.GetImages(),
-		image.GetImageCount(), metadata, &Player.TexID);
+	CreateShaderResourceView(
+		RendererManager_GetDevice(),
+		image.GetImages(),
+		image.GetImageCount(),
+		metadata,
+		&Player.TexID
+	);
 	//なんか失敗した場合に警告を出す
 	assert(Player.TexID);
 
@@ -116,8 +119,6 @@ void	UpdatePlayer()
 	}
 
 	return;
-
-
 
 }
 void	DrawPlayer()

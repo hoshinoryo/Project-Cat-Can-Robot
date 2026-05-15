@@ -18,7 +18,8 @@
 
 
 #include "main.h"
-#include "Renderer.h"
+#include "Renderer2D.h"
+#include "Renderer_Manager.h"
 #include "Block.h"
 #include "sprite.h"
 
@@ -29,33 +30,33 @@ ID3D11ShaderResourceView* g_Texture[10];
 
 BLOCK_MAP	BlockMap[] =
 {	//サンプルなので配置やサイズは適当
-	{0,XMFLOAT3(SCREEN_WIDTH/2,SCREEN_HEIGHT-40,0.0f), XMFLOAT3(80.0f * 15, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f,SCREEN_HEIGHT - 40 - 80*2,0.0f), XMFLOAT3(80.0f * 4, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f,SCREEN_HEIGHT - 40 - 80 * 4,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f,SCREEN_HEIGHT - 40 - 80 * 6,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f-80*1,SCREEN_HEIGHT - 40 - 80 * 8,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f-80*2,SCREEN_HEIGHT - 40 - 80 * 10,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f-80*3,SCREEN_HEIGHT - 40 - 80 * 12,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 40,0.0f), XMFLOAT3(80.0f * 15, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f, SCREEN_HEIGHT - 40 - 80*2,0.0f), XMFLOAT3(80.0f * 4, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f, SCREEN_HEIGHT - 40 - 80 * 4,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f, SCREEN_HEIGHT - 40 - 80 * 6,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 1, SCREEN_HEIGHT - 40 - 80 * 8,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 2, SCREEN_HEIGHT - 40 - 80 * 10,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 12,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
 
-	{0,XMFLOAT3(900.0f-80*3,SCREEN_HEIGHT - 40 - 80 * 14,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 3,SCREEN_HEIGHT - 40 - 80 * 16,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 3,SCREEN_HEIGHT - 40 - 80 * 18,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 3,SCREEN_HEIGHT - 40 - 80 * 20,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 3,SCREEN_HEIGHT - 40 - 80 * 22,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 14,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 16,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 18,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 20,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 22,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
 
-	{0,XMFLOAT3(900.0f - 80 * 0,SCREEN_HEIGHT - 40 - 80 * 24,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 3,SCREEN_HEIGHT - 40 - 80 * 26,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 0,SCREEN_HEIGHT - 40 - 80 * 28,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 3,SCREEN_HEIGHT - 40 - 80 * 30,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 0,SCREEN_HEIGHT - 40 - 80 * 32,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 0, SCREEN_HEIGHT - 40 - 80 * 24,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 26,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 0, SCREEN_HEIGHT - 40 - 80 * 28,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 30,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 0, SCREEN_HEIGHT - 40 - 80 * 32,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
 
-	{0,XMFLOAT3(900.0f - 80 * 3,SCREEN_HEIGHT - 40 - 80 * 34,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 0,SCREEN_HEIGHT - 40 - 80 * 36,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 3,SCREEN_HEIGHT - 40 - 80 * 38,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 4,SCREEN_HEIGHT - 40 - 80 * 40,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 6,SCREEN_HEIGHT - 40 - 80 * 42,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 4,SCREEN_HEIGHT - 40 - 80 * 44,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
-	{0,XMFLOAT3(900.0f - 80 * 6,SCREEN_HEIGHT - 40 - 80 * 46,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 34,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 0, SCREEN_HEIGHT - 40 - 80 * 36,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 3, SCREEN_HEIGHT - 40 - 80 * 38,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 4, SCREEN_HEIGHT - 40 - 80 * 40,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 6, SCREEN_HEIGHT - 40 - 80 * 42,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 4, SCREEN_HEIGHT - 40 - 80 * 44,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
+	{0,XMFLOAT3(900.0f - 80 * 6, SCREEN_HEIGHT - 40 - 80 * 46,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
 
 //	{3,XMFLOAT3(900.0f - 80 * 8,SCREEN_HEIGHT - 40 - 80 * 48,0.0f), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
 
@@ -65,7 +66,7 @@ BLOCK_MAP	BlockMap[] =
 //	{0,XMFLOAT3(500.0f,SCREEN_HEIGHT - 40 - 80,0), XMFLOAT3(80.0f * 2, 80.0f,0.0f)},
 
 
-	{0,XMFLOAT3(-999.0f,500.0f,0.0f), XMFLOAT3(80.0f, 80.0f,0.0f)},
+	{0,XMFLOAT3(-999.0f, 500.0f, 0.0f), XMFLOAT3(80.0f, 80.0f,0.0f)},
 
 };
 
@@ -85,14 +86,24 @@ void	InitBlock()
 	ScratchImage	image;
 	LoadFromWICFile(L"Asset\\Texture\\Block.png", WIC_FLAGS_NONE, &metadata, image);
 	//読み込んだ画像データをDirectXへ渡してテクスチャとして管理させる
-	CreateShaderResourceView(GetDevice(), image.GetImages(),
-		image.GetImageCount(), metadata, &g_Texture[0]);
+	CreateShaderResourceView(
+		RendererManager_GetDevice(),
+		image.GetImages(),
+		image.GetImageCount(),
+		metadata,
+		&g_Texture[0]
+	);
 	//なんか失敗した場合に警告を出す
 	assert(g_Texture[0]);
 
 	LoadFromWICFile(L"Asset\\Texture\\Goal.jpg", WIC_FLAGS_NONE, &metadata, image);
-	CreateShaderResourceView(GetDevice(), image.GetImages(),
-		image.GetImageCount(), metadata, &g_Texture[1]);
+	CreateShaderResourceView(
+		RendererManager_GetDevice(),
+		image.GetImages(),
+		image.GetImageCount(),
+		metadata,
+		&g_Texture[1]
+	);
 	//なんか失敗した場合に警告を出す
 	assert(g_Texture[1]);
 

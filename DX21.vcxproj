@@ -102,7 +102,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -116,7 +116,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -130,13 +130,18 @@
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Bg.cpp" />
     <ClCompile Include="Block.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="collision.cpp" />
+    <ClCompile Include="d3d11_state_guard_util.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Manager.cpp" />
     <ClCompile Include="player.cpp" />
-    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Renderer2D.cpp" />
+    <ClCompile Include="Renderer3D.cpp" />
+    <ClCompile Include="Renderer3D.h" />
+    <ClCompile Include="Renderer_Manager.cpp" />
     <ClCompile Include="Result.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Title.cpp" />
@@ -145,18 +150,39 @@
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Bg.h" />
     <ClInclude Include="Block.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="collision.h" />
+    <ClInclude Include="d3d11_state_guard_util.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="player.h" />
-    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Renderer2D.h" />
+    <ClInclude Include="Renderer_Manager.h" />
     <ClInclude Include="Result.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Title.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Shader\3dLitPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shader\3dLitSkinnedVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shader\3dLitStaticVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="Shader\Common.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

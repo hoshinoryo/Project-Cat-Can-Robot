@@ -1,5 +1,5 @@
 #include "Main.h"
-#include "Renderer.h"
+#include "Renderer_Manager.h"
 #include "Manager.h"
 #include "Sprite.h"
 #include "Title.h"
@@ -14,7 +14,13 @@ void InitTitle()
 	TexMetadata metadata;
 	ScratchImage image;
 	LoadFromWICFile(L"Asset\\Texture\\Title.png", WIC_FLAGS_NONE, &metadata, image);
-	CreateShaderResourceView(GetDevice(), image.GetImages(), image.GetImageCount(), metadata, &g_Texture);
+	CreateShaderResourceView(
+		RendererManager_GetDevice(),
+		image.GetImages(),
+		image.GetImageCount(),
+		metadata,
+		&g_Texture
+	);
 	assert(g_Texture);
 
 }
