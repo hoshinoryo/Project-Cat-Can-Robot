@@ -7,12 +7,12 @@
 
 ==============================================================================*/
 
+#include <DirectXMath.h>
+#include <algorithm>
+
 #include "Camera.h"
 #include "Renderer_Manager.h"
 //#include "mouse.h"
-
-#include <DirectXMath.h>
-#include <algorithm>
 #include "model_shader.h"
 
 using namespace DirectX;
@@ -24,8 +24,8 @@ static const float MAX_PITCH = XMConvertToRadians(179.0f);
 bool PlayerCamera::Initialize()
 {
 	// D3D device and device context
-	ID3D11Device* g_Device = RendererManager_GetDevice();
-	//ID3D11DeviceContext* g_DeviceContext = RendererManager_GetDeviceContext();
+	ID3D11Device* device = RendererManager_GetDevice();
+	if (!device) return false;
 
 	D3D11_BUFFER_DESC buffer_desc{};
 	buffer_desc.ByteWidth = sizeof(XMFLOAT4X4);
@@ -33,10 +33,10 @@ bool PlayerCamera::Initialize()
 	buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	buffer_desc.CPUAccessFlags = 0;
 
-	if (FAILED(g_Device->CreateBuffer(&buffer_desc, nullptr, &m_pVSConstantBufferView)))
+	if (FAILED(device->CreateBuffer(&buffer_desc, nullptr, &m_pVSConstantBufferView)))
 		return false;
 
-	if (FAILED(g_Device->CreateBuffer(&buffer_desc, nullptr, &m_pVSConstantBufferProj)))
+	if (FAILED(device->CreateBuffer(&buffer_desc, nullptr, &m_pVSConstantBufferProj)))
 		return false;
 
 	XMStoreFloat4x4(&m_View, XMMatrixIdentity());
@@ -67,14 +67,23 @@ void PlayerCamera::SetFollowTarget(const XMFLOAT3* playerPos)
 
 void PlayerCamera::Update(double elapsed_time)
 {
-	if (!m_Active || !m_pPlayerPos) return;
+	ID3D11DeviceContext* context = RendererManager_GetDeviceContext();
+	if (!context) return;
 
 	//UpdateInput(elapsed_time);
 	UpdateMatrices();
 
-	ID3D11DeviceContext* g_DeviceContext = RendererManager_GetDeviceContext();
-	g_DeviceContext->VSSetConstantBuffers(1, 1, &m_pVSConstantBufferView);
-	g_DeviceContext->VSSetConstantBuffers(2, 1, &m_pVSConstantBufferProj);
+	context->VSSetConstantBuffers(1, 1, &m_pVSConstantBufferView);
+	context->VSSetConstantBuffers(2, 1, &m_pVSConstantBufferProj);
+}
+
+void PlayerCamera::Bind()
+{
+	ID3D11DeviceContext* context = RendererManager_GetDeviceContext();
+	if (!context) return;
+
+	context->VSSetConstantBuffers(1, 1, &m_pVSConstantBufferView);
+	context->VSSetConstantBuffers(2, 1, &m_pVSConstantBufferProj);
 }
 
 /*
@@ -111,7 +120,12 @@ void PlayerCamera::UpdateInput(double elapsed_time)
 
 void PlayerCamera::UpdateMatrices()
 {
-	XMVECTOR player = XMLoadFloat3(m_pPlayerPos);
+	XMVECTOR player = XMVectorZero();
+
+	if (m_pPlayerPos)
+	{
+		player = XMLoadFloat3(m_pPlayerPos);
+	}
 
 	float sinPitch = sinf(m_Pitch);
 	float cosPitch = cosf(m_Pitch);
@@ -122,8 +136,11 @@ void PlayerCamera::UpdateMatrices()
 	XMVECTOR forward = XMVector3Normalize(XMVectorSet(sinPitch * sinYaw, cosPitch, sinPitch * cosYaw, 0.0f));
 	XMVECTOR worldUp = XMVectorSet(0, 1, 0, 0);
 
-	XMVECTOR camPos = player - forward * m_Distance + worldUp * m_Height;
-	XMVECTOR target = player + worldUp * m_LookHeight;
+	//XMVECTOR camPos = player - forward * m_Distance + worldUp * m_Height;
+	//XMVECTOR target = player + worldUp * m_LookHeight;
+
+	XMVECTOR camPos = XMVectorSet(0.0f, 5.0f, -10.0f, 1.0f);
+	XMVECTOR target = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
 	XMStoreFloat3(&m_Position, camPos);
 	XMVECTOR camFront = XMVector3Normalize(target - camPos);
@@ -148,7 +165,7 @@ void PlayerCamera::UpdateMatrices()
 	XMStoreFloat4x4(&viewT, XMMatrixTranspose(view));
 	XMStoreFloat4x4(&projT, XMMatrixTranspose(proj));
 
-	ID3D11DeviceContext* g_DeviceContext = RendererManager_GetDeviceContext();
-	g_DeviceContext->UpdateSubresource(m_pVSConstantBufferView, 0, nullptr, &viewT, 0, 0);
-	g_DeviceContext->UpdateSubresource(m_pVSConstantBufferProj, 0, nullptr, &projT, 0, 0);
+	ID3D11DeviceContext* context = RendererManager_GetDeviceContext();
+	context->UpdateSubresource(m_pVSConstantBufferView, 0, nullptr, &viewT, 0, 0);
+	context->UpdateSubresource(m_pVSConstantBufferProj, 0, nullptr, &projT, 0, 0);
 }

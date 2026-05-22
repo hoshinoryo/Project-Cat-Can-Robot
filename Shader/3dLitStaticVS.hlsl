@@ -76,7 +76,8 @@ VS_OUT main(VS_IN vi)
     float4 mtxW = mul(localPos, world);
     float4 mtxWV = mul(mtxW, view);
     vo.posH = mul(mtxWV, proj);
-    vo.posLightH = mul(mtxW, lightViewProj);
+    // vo.posLightH = mul(mtxW, lightViewProj);
+    vo.posLightH = float4(0, 0, 0, 1);
     
     // 法線・tangentをワールド空間へ
     float3 normalW = mul(float4(localNormal, 0.0f), world).xyz;

@@ -8,13 +8,13 @@
 using namespace DirectX;
 
 
-static constexpr const char* STATIC_VS_CSO = "shader/3dLitStaticVS.cso";
-static constexpr const char* SKINNED_VS_CSO = "shader/3dLitSkinnedVS.cso";
-static constexpr const char* LIT_PS_CSO = "shader/3dLitPS.cso";
+static constexpr const char* STATIC_VS_CSO = "Shader/3dLitStaticVS.cso";
+static constexpr const char* SKINNED_VS_CSO = "Shader/3dLitSkinnedVS.cso";
+static constexpr const char* LIT_PS_CSO = "Shader/3dLitPS.cso";
 
-static constexpr const wchar_t* STATIC_VS_HLSL = L"shader/3dLitStaticVS.hlsl";
-static constexpr const wchar_t* SKINNED_VS_HLSL = L"shader/3dLitSkinnedVS.hlsl";
-static constexpr const wchar_t* LIT_PS_HLSL = L"shader/3dLitPS.hlsl";
+static constexpr const wchar_t* STATIC_VS_HLSL = L"Shader/3dLitStaticVS.hlsl";
+static constexpr const wchar_t* SKINNED_VS_HLSL = L"Shader/3dLitSkinnedVS.hlsl";
+static constexpr const wchar_t* LIT_PS_HLSL = L"Shader/3dLitPS.hlsl";
 
 
 namespace
@@ -230,11 +230,11 @@ void ModelShader::Begin()
 	m_Context->VSSetConstantBuffers(0, 1, &m_WorldBuffer);
 
 	m_Context->PSSetConstantBuffers(0, 1, &m_DiffuseBuffer);
-	m_Context->PSSetConstantBuffers(1, 1, &m_AmbientBuffer);
-	m_Context->PSSetConstantBuffers(2, 1, &m_DirectionalLightBuffer);
+	//m_Context->PSSetConstantBuffers(1, 1, &m_AmbientBuffer);
+	//m_Context->PSSetConstantBuffers(2, 1, &m_DirectionalLightBuffer);
 	m_Context->PSSetConstantBuffers(3, 1, &m_SpecularBuffer);
-	m_Context->PSSetConstantBuffers(4, 1, &m_PointLightBuffer);
-	m_Context->PSSetConstantBuffers(5, 1, &m_ShadowBuffer);
+	//m_Context->PSSetConstantBuffers(4, 1, &m_PointLightBuffer);
+	//m_Context->PSSetConstantBuffers(5, 1, &m_ShadowBuffer);
 }
 
 void ModelShader::BeginDepthOnly()

@@ -12,7 +12,7 @@ enum SCENE
 
 void InitManager();
 void UninitManager();
-void UpdateManager();
+void UpdateManager(double elapsed_Time);
 void DrawManager();
 
 void SetScene(SCENE Scene);

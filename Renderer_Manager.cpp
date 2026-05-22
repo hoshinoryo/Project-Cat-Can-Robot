@@ -132,7 +132,7 @@ void RendererManager_Finalize()
 
 void RendererManager_BeginFrame()
 {
-	float clearColor[4] = { 0.0f, 0.0f, 1.0f, 1.0f }; // blue
+	float clearColor[4] = { 0.0f, 0.5f, 0.5f, 1.0f }; // blue
 
 	g_DeviceContext->ClearRenderTargetView(g_RenderTargetView, clearColor);
 	g_DeviceContext->ClearDepthStencilView(g_DepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);

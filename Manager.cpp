@@ -25,12 +25,12 @@ void InitManager()
 	RendererManager_Initialize();
 	Renderer3D_Initialize();
 	Renderer2D_Initialize();
-
+	
 	InitSprite();
 	InitAudio();
 
 
-	SetScene(SCENE_TITLE);
+	SetScene(SCENE_GAME);
 }
 
 void UninitManager()
@@ -45,7 +45,7 @@ void UninitManager()
 	RendererManager_Finalize();
 }
 
-void UpdateManager()
+void UpdateManager(double elapsed_Time)
 {
 	UpdateInput();
 
@@ -59,7 +59,7 @@ void UpdateManager()
 		break;
 
 	case SCENE_GAME:
-		UpdateGame();
+		Game_Update(elapsed_Time);
 		break;
 
 	case SCENE_RESULT:
@@ -86,7 +86,7 @@ void DrawManager()
 		break;
 
 	case SCENE_GAME:
-		DrawGame();
+		Game_Draw();
 		break;
 
 	case SCENE_RESULT:
@@ -115,7 +115,7 @@ void SetScene(SCENE Scene)
 		break;
 
 	case SCENE_GAME:
-		UninitGame();
+		Game_Finalize();
 		break;
 
 	case SCENE_RESULT:
@@ -140,7 +140,7 @@ void SetScene(SCENE Scene)
 		break;
 
 	case SCENE_GAME:
-		InitGame();
+		Game_Initialize();
 		break;
 
 	case SCENE_RESULT:

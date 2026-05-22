@@ -6,10 +6,10 @@
 --------------------------------------------------------------------------------
 
 ==============================================================================*/
+#pragma once
 
 #include <DirectXMath.h>
 #include <d3d11.h>
-
 
 class PlayerCamera
 {
@@ -20,10 +20,11 @@ public:
 
 	void SetFollowTarget(const DirectX::XMFLOAT3* playerPos);
 
-	void SetActive(bool v) { m_Active = v; }
-	bool IsActive() const { return m_Active; }
+	//void SetActive(bool v) { m_Active = v; }
+	//bool IsActive() const { return m_Active; }
 
 	void Update(double elapsed_time);
+	void Bind();
 
 	const DirectX::XMFLOAT4X4& GetView() const { return m_View; }
 	const DirectX::XMFLOAT4X4& GetProj() const { return m_Proj; }
@@ -41,7 +42,7 @@ private:
 
 private:
 
-	bool m_Active = false;
+	//bool m_Active = false;
 
 	const DirectX::XMFLOAT3* m_pPlayerPos = nullptr;
 

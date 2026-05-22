@@ -63,12 +63,6 @@
     <ClCompile Include="Camera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer3D.h">
-      <Filter>Renderer_Frame</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer3D.cpp">
-      <Filter>Renderer_Frame</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer2D.cpp">
       <Filter>Renderer_Frame</Filter>
     </ClCompile>
@@ -98,6 +92,18 @@
     </ClCompile>
     <ClCompile Include="model_shader.cpp">
       <Filter>Model_Importer</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment_Objects.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment_Objects.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer3D.cpp">
+      <Filter>Renderer_Frame</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +175,12 @@
     </ClInclude>
     <ClInclude Include="model_shader.h">
       <Filter>Model_Importer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer3D.h">
+      <Filter>Renderer_Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

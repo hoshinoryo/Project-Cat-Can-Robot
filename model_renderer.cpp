@@ -37,8 +37,21 @@ void ModelRenderer_Initialize()
 
 	g_ModelShader.Initialize();
 
-	g_TextureWhite.Load(L"resources/white.png");
-	g_NormalFlat.Load(L"resources/normal_flat.png");
+	g_TextureWhite.Load(L"Asset/Texture/white.png");
+	g_NormalFlat.Load(L"Asset/Texture/normal_flat.png");
+
+	// if texture is null
+	if (!g_TextureWhite.GetSRV())
+	{
+		MessageBox(nullptr, "white.png load failed", "ModelRenderer Error", MB_OK);
+		return;
+	}
+
+	if (!g_NormalFlat.GetSRV())
+	{
+		MessageBox(nullptr, "normal_flat.png load failed", "ModelRenderer Error", MB_OK);
+		return;
+	}
 
 	g_TexReady = true;
 }
@@ -64,6 +77,7 @@ void ModelRenderer_Draw(
 {
 	ModelRenderer_Initialize();
 
+	if (!g_TexReady) return;
 	if (!asset) return;
 	if (meshIndex >= asset->meshes.size()) return;
 
@@ -221,6 +235,7 @@ void ModelRenderer_DrawDepth(ModelAsset* asset, uint32_t meshIndex, const Direct
 {
 	ModelRenderer_Initialize();
 
+	if (!g_TexReady) return;
 	if (!asset) return;
 	if (meshIndex >= asset->meshes.size()) return;
 

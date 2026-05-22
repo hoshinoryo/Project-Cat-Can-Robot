@@ -7,6 +7,7 @@
 
 ==============================================================================*/
 
+
 #include <io.h>
 #include <cstdio>
 #include <assert.h>
@@ -239,6 +240,7 @@ void Renderer3D_Begin()
 	Renderer3D_SetAlphaBlendTransparent();
 
 	g_DeviceContext->RSSetState(g_RasterizerState3D);
+	g_DeviceContext->PSSetSamplers(0, 1, &g_SamplerState3D);
 
 	/*
 	g_DeviceContext->PSSetConstantBuffers(0, 1, &g_DiffuseBuffer3D);

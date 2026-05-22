@@ -109,6 +109,9 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command> xcopy /D /Y "$(TargetDir)*.cso" "$(ProjectDir)/Shader" </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -125,6 +128,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command> xcopy /D /Y "$(TargetDir)*.cso" "$(ProjectDir)/Shader" </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="assimp_node_util.cpp" />
@@ -135,8 +141,11 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="d3d11_state_guard_util.cpp" />
+    <ClCompile Include="Environment_Objects.cpp" />
+    <ClCompile Include="Environment_Objects.h" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Manager.cpp" />
     <ClCompile Include="model_asset.cpp" />
@@ -145,7 +154,6 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="Renderer2D.cpp" />
     <ClCompile Include="Renderer3D.cpp" />
-    <ClCompile Include="Renderer3D.h" />
     <ClCompile Include="Renderer_Manager.cpp" />
     <ClCompile Include="Result.cpp" />
     <ClCompile Include="Sprite.cpp" />
@@ -164,6 +172,7 @@
     <ClInclude Include="d3d11_state_guard_util.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Manager.h" />
     <ClInclude Include="model_asset.h" />
@@ -171,6 +180,7 @@
     <ClInclude Include="model_shader.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="Renderer2D.h" />
+    <ClInclude Include="Renderer3D.h" />
     <ClInclude Include="Renderer_Manager.h" />
     <ClInclude Include="Result.h" />
     <ClInclude Include="Sprite.h" />

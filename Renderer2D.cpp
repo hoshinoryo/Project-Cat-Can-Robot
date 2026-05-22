@@ -186,17 +186,29 @@ void Renderer2D_Initialize()
 
 void Renderer2D_Finalize()
 {
-	g_WorldBuffer2D->Release();
-	g_ViewBuffer2D->Release();
+	g_WorldBuffer2D     ->Release();
+	g_ViewBuffer2D      ->Release();
 	g_ProjectionBuffer2D->Release();
-	g_LightBuffer2D->Release();
-	g_MaterialBuffer2D->Release();
+	g_LightBuffer2D     ->Release();
+	g_MaterialBuffer2D  ->Release();
+
+	g_TexCoordBuffer2D       ->Release();
+	g_DepthStateEnable2D     ->Release();
+	g_DepthStateDisable2D    ->Release();
+	g_BlendStateTransparent2D->Release();
+	g_BlendStateATC2D        ->Release();
+	g_BlendStateAdd2D        ->Release();
+	g_RasterizerState2D      ->Release();
+	//g_SamplerState2D         ->Release();
 }
 
 void Renderer2D_Begin()
 {
 	Renderer2D_SetDepthEnable(false);
 	Renderer2D_SetAlphaBlendTransparent();
+
+	g_DeviceContext->RSSetState(g_RasterizerState2D);
+	g_DeviceContext->PSSetSamplers(0, 1, &g_SamplerState2D);
 
 	g_DeviceContext->VSSetConstantBuffers(3, 1, &g_MaterialBuffer2D);
 	g_DeviceContext->PSSetConstantBuffers(3, 1, &g_MaterialBuffer2D);

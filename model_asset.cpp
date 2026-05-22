@@ -7,6 +7,8 @@
 
 ==============================================================================*/
 
+#pragma once
+
 #include <algorithm>
 #include <assert.h>
 #include <unordered_set>
