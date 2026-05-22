@@ -1,3 +1,12 @@
+/*==============================================================================
+
+   3D Renderer Common Setting [Renderer3D.h]
+														 Author : Gu Anyi
+														 Date   : 2026/05/15
+--------------------------------------------------------------------------------
+
+==============================================================================*/
+
 #pragma once
 
 #define SCREEN_WIDTH	(1280)
@@ -13,6 +22,9 @@ struct VERTEX_3D
 	DirectX::XMFLOAT3 Tangent;
 	DirectX::XMFLOAT4 Diffuse;
 	DirectX::XMFLOAT2 TexCoord;
+
+	//UINT  boneIndex[4];  // 影響するボーンのインデックス
+	//float boneWeight[4]; // 各ボーンのウェイト
 };
 
 // for 3D constant buffer
@@ -69,6 +81,7 @@ void Renderer3D_EndSkydome();
 
 void Renderer3D_Begin(); // before 3D drawing
 
+/*
 // matrix transformation
 void Renderer3D_SetWorldMatrix(DirectX::XMMATRIX WorldMatrix);
 void Renderer3D_SetViewMatrix(DirectX::XMMATRIX ViewMatrix);
@@ -81,11 +94,12 @@ void Renderer3D_SetDirectionalLight(const DirectX::XMFLOAT4& Direction, const Di
 void Renderer3D_SetSpecular(const DirectX::XMFLOAT3& EyePosW, float Power, const DirectX::XMFLOAT4& Color);
 void Renderer3D_SetPointLight(const PS_POINT_LIGHT& PointLight);
 void Renderer3D_SetShadowConstant(const SHADOW_CONSTANT& ShadowConstant);
+*/
 
 // directX status
 void Renderer3D_SetDepthEnable(bool Enable);
 void Renderer3D_SetAlphaBlendTransparent();
 void Renderer3D_SetAlphaBlendAdd();
 
-void Renderer3D_CreateVS(ID3D11VertexShader** VertexShader, ID3D11InputLayout** VertexLayout, const char* FileName);
-void Renderer3D_CreatePS(ID3D11PixelShader** PixelShader, const char* FileName);
+//void Renderer3D_CreateVS(ID3D11VertexShader** VertexShader, ID3D11InputLayout** VertexLayout, const char* FileName);
+//void Renderer3D_CreatePS(ID3D11PixelShader** PixelShader, const char* FileName);

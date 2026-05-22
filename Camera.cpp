@@ -13,6 +13,7 @@
 
 #include <DirectXMath.h>
 #include <algorithm>
+#include "model_shader.h"
 
 using namespace DirectX;
 
@@ -20,13 +21,12 @@ using namespace DirectX;
 static const float MIN_PITCH = XMConvertToRadians(91.0f);
 static const float MAX_PITCH = XMConvertToRadians(179.0f);
 
-// D3D device and device context
-static ID3D11Device* g_Device = RendererManager_GetDevice();
-static ID3D11DeviceContext* g_DeviceContext = RendererManager_GetDeviceContext();
-
-
 bool PlayerCamera::Initialize()
 {
+	// D3D device and device context
+	ID3D11Device* g_Device = RendererManager_GetDevice();
+	//ID3D11DeviceContext* g_DeviceContext = RendererManager_GetDeviceContext();
+
 	D3D11_BUFFER_DESC buffer_desc{};
 	buffer_desc.ByteWidth = sizeof(XMFLOAT4X4);
 	buffer_desc.Usage = D3D11_USAGE_DEFAULT;
@@ -72,6 +72,7 @@ void PlayerCamera::Update(double elapsed_time)
 	//UpdateInput(elapsed_time);
 	UpdateMatrices();
 
+	ID3D11DeviceContext* g_DeviceContext = RendererManager_GetDeviceContext();
 	g_DeviceContext->VSSetConstantBuffers(1, 1, &m_pVSConstantBufferView);
 	g_DeviceContext->VSSetConstantBuffers(2, 1, &m_pVSConstantBufferProj);
 }
@@ -147,6 +148,7 @@ void PlayerCamera::UpdateMatrices()
 	XMStoreFloat4x4(&viewT, XMMatrixTranspose(view));
 	XMStoreFloat4x4(&projT, XMMatrixTranspose(proj));
 
+	ID3D11DeviceContext* g_DeviceContext = RendererManager_GetDeviceContext();
 	g_DeviceContext->UpdateSubresource(m_pVSConstantBufferView, 0, nullptr, &viewT, 0, 0);
 	g_DeviceContext->UpdateSubresource(m_pVSConstantBufferProj, 0, nullptr, &projT, 0, 0);
 }

@@ -8,7 +8,6 @@
 ==============================================================================*/
 
 #include "d3d11_state_guard_util.h"
-//#include "direct3d.h"
 
 #include <cstring>
 

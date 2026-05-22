@@ -19,6 +19,9 @@
     <Filter Include="Renderer_Frame">
       <UniqueIdentifier>{338d4006-0a28-4477-b47e-6246b0707be4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Model_Importer">
+      <UniqueIdentifier>{bea795cb-c401-48c5-b34a-647435bad9cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -75,6 +78,27 @@
     <ClCompile Include="d3d11_state_guard_util.cpp">
       <Filter>Renderer_Frame</Filter>
     </ClCompile>
+    <ClCompile Include="model_asset.cpp">
+      <Filter>Model_Importer</Filter>
+    </ClCompile>
+    <ClCompile Include="model_renderer.cpp">
+      <Filter>Model_Importer</Filter>
+    </ClCompile>
+    <ClCompile Include="WICTextureLoader11.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="assimp_node_util.cpp">
+      <Filter>Model_Importer</Filter>
+    </ClCompile>
+    <ClCompile Include="axis_util.cpp">
+      <Filter>Model_Importer</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="model_shader.cpp">
+      <Filter>Model_Importer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Main.h">
@@ -124,6 +148,27 @@
     </ClInclude>
     <ClInclude Include="d3d11_state_guard_util.h">
       <Filter>Renderer_Frame</Filter>
+    </ClInclude>
+    <ClInclude Include="model_asset.h">
+      <Filter>Model_Importer</Filter>
+    </ClInclude>
+    <ClInclude Include="model_renderer.h">
+      <Filter>Model_Importer</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTextureLoader11.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="assimp_node_util.h">
+      <Filter>Model_Importer</Filter>
+    </ClInclude>
+    <ClInclude Include="axis_util.h">
+      <Filter>Model_Importer</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="model_shader.h">
+      <Filter>Model_Importer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

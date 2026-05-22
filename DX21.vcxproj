@@ -127,7 +127,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="assimp_node_util.cpp" />
     <ClCompile Include="Audio.cpp" />
+    <ClCompile Include="axis_util.cpp" />
     <ClCompile Include="Bg.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -137,6 +139,9 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Manager.cpp" />
+    <ClCompile Include="model_asset.cpp" />
+    <ClCompile Include="model_renderer.cpp" />
+    <ClCompile Include="model_shader.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="Renderer2D.cpp" />
     <ClCompile Include="Renderer3D.cpp" />
@@ -144,10 +149,14 @@
     <ClCompile Include="Renderer_Manager.cpp" />
     <ClCompile Include="Result.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Title.cpp" />
+    <ClCompile Include="WICTextureLoader11.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="assimp_node_util.h" />
     <ClInclude Include="Audio.h" />
+    <ClInclude Include="axis_util.h" />
     <ClInclude Include="Bg.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="Camera.h" />
@@ -157,12 +166,17 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Manager.h" />
+    <ClInclude Include="model_asset.h" />
+    <ClInclude Include="model_renderer.h" />
+    <ClInclude Include="model_shader.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="Renderer2D.h" />
     <ClInclude Include="Renderer_Manager.h" />
     <ClInclude Include="Result.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Title.h" />
+    <ClInclude Include="WICTextureLoader11.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shader\3dLitPS.hlsl">

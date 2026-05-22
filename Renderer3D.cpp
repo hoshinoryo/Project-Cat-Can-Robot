@@ -1,3 +1,12 @@
+/*==============================================================================
+
+   3D Renderer Common Setting [Renderer3D.cpp]
+														 Author : Gu Anyi
+														 Date   : 2026/05/15
+--------------------------------------------------------------------------------
+
+==============================================================================*/
+
 #include <io.h>
 #include <cstdio>
 #include <assert.h>
@@ -9,6 +18,7 @@
 
 using namespace DirectX;
 
+/*
 static ID3D11Buffer* g_WorldBuffer3D{};
 static ID3D11Buffer* g_ViewBuffer3D{};
 static ID3D11Buffer* g_ProjectionBuffer3D{};
@@ -20,6 +30,7 @@ static ID3D11Buffer* g_DirectionalLightBuffer3D{};
 static ID3D11Buffer* g_SpecularBuffer3D{};
 static ID3D11Buffer* g_PointLightBuffer3D{};
 static ID3D11Buffer* g_ShadowBuffer3D{};
+*/
 
 // depth state
 static ID3D11DepthStencilState* g_DepthStateEnable3D{};  // for 3D depth state enable
@@ -62,7 +73,7 @@ void Renderer3D_Initialize()
 	rasterizerDesc.MultisampleEnable = FALSE;
 	g_Device->CreateRasterizerState(&rasterizerDesc, &g_RasterizerState3D);
 
-	// for skydome
+	// RasterizerState for skydome
 	D3D11_RASTERIZER_DESC skyRasterizerDesc{};
 	skyRasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	skyRasterizerDesc.CullMode = D3D11_CULL_BACK;
@@ -130,6 +141,7 @@ void Renderer3D_Initialize()
 	bufferDesc.MiscFlags = 0;
 	bufferDesc.StructureByteStride = sizeof(float);
 
+	/*
 	g_Device->CreateBuffer(&bufferDesc, NULL, &g_WorldBuffer3D);
 	g_Device->CreateBuffer(&bufferDesc, NULL, &g_ViewBuffer3D);
 	g_Device->CreateBuffer(&bufferDesc, NULL, &g_ProjectionBuffer3D);
@@ -167,19 +179,23 @@ void Renderer3D_Initialize()
 	PS_POINT_LIGHT pointLight{};
 	pointLight.PointLightCount = 0;
 	Renderer3D_SetPointLight(pointLight);
+	*/
 
+	/*
 	SHADOW_CONSTANT shadow{};
 	XMStoreFloat4x4(&shadow.LightViewProj, XMMatrixTranspose(XMMatrixIdentity()));
 	shadow.ShadowBias = 0.001f;
 	shadow.ShadowStrength = 0.0f;
 	shadow.ShadowTexelSize = XMFLOAT2(1.0f / 1024.0f, 1.0f / 1024.0f);
 	Renderer3D_SetShadowConstant(shadow);
+	*/
 
 	//Renderer3D_Begin();
 }
 
 void Renderer3D_Finalize()
 {
+	/*
 	SafeRelease(g_ShadowBuffer3D);
 	SafeRelease(g_PointLightBuffer3D);
 	SafeRelease(g_SpecularBuffer3D);
@@ -190,6 +206,7 @@ void Renderer3D_Finalize()
 	SafeRelease(g_ProjectionBuffer3D);
 	SafeRelease(g_ViewBuffer3D);
 	SafeRelease(g_WorldBuffer3D);
+	*/
 
 	SafeRelease(g_SamplerState3D);
 
@@ -223,6 +240,7 @@ void Renderer3D_Begin()
 
 	g_DeviceContext->RSSetState(g_RasterizerState3D);
 
+	/*
 	g_DeviceContext->PSSetConstantBuffers(0, 1, &g_DiffuseBuffer3D);
 	g_DeviceContext->PSSetConstantBuffers(1, 1, &g_AmbientBuffer3D);
 	g_DeviceContext->PSSetConstantBuffers(2, 1, &g_DirectionalLightBuffer3D);
@@ -231,8 +249,10 @@ void Renderer3D_Begin()
 
 	g_DeviceContext->VSSetConstantBuffers(5, 1, &g_ShadowBuffer3D);
 	g_DeviceContext->PSSetConstantBuffers(5, 1, &g_ShadowBuffer3D);
+	*/
 }
 
+/*
 void Renderer3D_SetWorldMatrix(XMMATRIX WorldMatrix)
 {
 	XMFLOAT4X4 world;
@@ -294,6 +314,7 @@ void Renderer3D_SetShadowConstant(const SHADOW_CONSTANT& ShadowConstant)
 {
 	g_DeviceContext->UpdateSubresource(g_ShadowBuffer3D, 0, NULL, &ShadowConstant, 0, 0);
 }
+*/
 
 void Renderer3D_SetDepthEnable(bool Enable)
 {
@@ -315,6 +336,7 @@ void Renderer3D_SetAlphaBlendAdd()
 	g_DeviceContext->OMSetBlendState(g_BlendStateAdd3D, blendFactor, 0xffffffff);
 }
 
+/*
 void Renderer3D_CreateVS(ID3D11VertexShader** VertexShader, ID3D11InputLayout** VertexLayout, const char* FileName)
 {
 	FILE* file;
@@ -367,3 +389,4 @@ void Renderer3D_CreatePS(ID3D11PixelShader** PixelShader, const char* FileName)
 
 	delete[] buffer;
 }
+*/
