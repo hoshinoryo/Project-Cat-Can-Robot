@@ -9,10 +9,7 @@
 #include "Light.h"
 #include "Camera.h"
 
-
-#include "Block.h"
 #include "Player.h"
-#include "Bg.h"
 #include "Environment_Objects.h"
 
 
@@ -23,9 +20,6 @@ static Player g_Player;
 
 void Game_Initialize()
 {
-	InitBlock();
-	InitBg();
-
 	// 3D
 	g_PlayerCamera.Initialize();
 
@@ -51,16 +45,10 @@ void Game_Finalize()
 	EnvironmentObjects::Finalize();
 	g_LightManager.Finalize();
 	g_PlayerCamera.Finalize();
-
-	UninitBg();
-	UninitBlock();
 }
 
 void Game_Update(double elapsed_Time)
 {
-	UpdateBg();
-	UpdateBlock();
-
 	// 3D
 	g_PlayerCamera.Update(elapsed_Time);
 	g_Player.Update(elapsed_Time, g_PlayerCamera.GetFront());
@@ -73,24 +61,6 @@ void Game_Update(double elapsed_Time)
 
 void Game_Draw()
 {
-	/*
-	// 2D Drawing
-	Renderer2D_Begin();
-	DrawBg();
-	DrawField();
-	DrawBlock();
-	DrawPiece();
-	DrawEffect();
-	*/
-
-	// 3D Drawing
-	Game_Draw3DScene();
-}
-
-void Game_Draw3DScene()
-{
-	Renderer3D_Begin();
-
 	g_PlayerCamera.Bind();
 	g_LightManager.BindAllLightsToPipeline();
 
@@ -99,3 +69,4 @@ void Game_Draw3DScene()
 	EnvironmentObjects::Draw(cameraPos);
 	g_Player.Draw(cameraPos);
 }
+

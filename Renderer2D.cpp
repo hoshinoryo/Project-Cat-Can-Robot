@@ -10,6 +10,7 @@
 #include <io.h>
 #include <cstdio>
 #include <assert.h>
+#include <cstddef>
 
 #include "main.h"
 #include "Renderer2D.h"
@@ -122,8 +123,8 @@ void Renderer2D_Initialize()
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	ID3D11SamplerState* samplerState{};
-	g_Device->CreateSamplerState(&samplerDesc, &samplerState);
-	g_DeviceContext->PSSetSamplers(0, 1, &samplerState);
+	g_Device->CreateSamplerState(&samplerDesc, &g_SamplerState2D);
+	g_DeviceContext->PSSetSamplers(0, 1, &g_SamplerState2D);
 
 	// --------------- 2D定数バッファ生成 ---------------------
 	D3D11_BUFFER_DESC bufferDesc{};
@@ -173,6 +174,7 @@ void Renderer2D_Initialize()
 	MATERIAL material{};
 	material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	material.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	material.TextureEnable = TRUE;
 	Renderer2D_SetMaterial(material);
 
 	// テクスチャ座標初期化
@@ -180,8 +182,6 @@ void Renderer2D_Initialize()
 	texcoord.Position = XMFLOAT2(0.0f, 0.0f);
 	texcoord.Scale = XMFLOAT2(1.0f, 1.0f);
 	Renderer2D_SetTexCoord(texcoord);
-
-	//Renderer2D_Begin();
 }
 
 void Renderer2D_Finalize()
@@ -199,7 +199,7 @@ void Renderer2D_Finalize()
 	g_BlendStateATC2D        ->Release();
 	g_BlendStateAdd2D        ->Release();
 	g_RasterizerState2D      ->Release();
-	//g_SamplerState2D         ->Release();
+	g_SamplerState2D         ->Release();
 }
 
 void Renderer2D_Begin()
@@ -209,6 +209,10 @@ void Renderer2D_Begin()
 
 	g_DeviceContext->RSSetState(g_RasterizerState2D);
 	g_DeviceContext->PSSetSamplers(0, 1, &g_SamplerState2D);
+
+	g_DeviceContext->VSSetConstantBuffers(0, 1, &g_WorldBuffer2D);
+	g_DeviceContext->VSSetConstantBuffers(1, 1, &g_ViewBuffer2D);
+	g_DeviceContext->VSSetConstantBuffers(2, 1, &g_ProjectionBuffer2D);
 
 	g_DeviceContext->VSSetConstantBuffers(3, 1, &g_MaterialBuffer2D);
 	g_DeviceContext->PSSetConstantBuffers(3, 1, &g_MaterialBuffer2D);
@@ -330,10 +334,10 @@ void Renderer2D_CreateVS(ID3D11VertexShader** VertexShader, ID3D11InputLayout** 
 
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, 52, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, offsetof(VERTEX_2D, Position), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, offsetof(VERTEX_2D, Normal),   D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(VERTEX_2D, Diffuse),  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, offsetof(VERTEX_2D, TexCoord), D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 	UINT numElements = ARRAYSIZE(layout);
 

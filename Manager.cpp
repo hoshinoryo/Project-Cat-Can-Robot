@@ -32,7 +32,7 @@ void InitManager()
 	InitSprite();
 	InitAudio();
 
-	SetScene(SCENE_GAME);
+	SetScene(SCENE_TITLE);
 }
 
 void UninitManager()
@@ -86,14 +86,17 @@ void DrawManager()
 		break;
 
 	case SCENE_TITLE:
+		Renderer2D_Begin();
 		DrawTitle();
 		break;
 
 	case SCENE_GAME:
+		Renderer3D_Begin();
 		Game_Draw();
 		break;
 
 	case SCENE_RESULT:
+		Renderer2D_Begin();
 		DrawResult();
 		break;
 

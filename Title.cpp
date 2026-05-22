@@ -13,16 +13,23 @@ void InitTitle()
 	// テクスチャ読み込み
 	TexMetadata metadata;
 	ScratchImage image;
-	LoadFromWICFile(L"Asset\\Texture\\Title.png", WIC_FLAGS_NONE, &metadata, image);
-	CreateShaderResourceView(
+	HRESULT hr = LoadFromWICFile(
+		L"Asset\\Texture\\Title.png",
+		WIC_FLAGS_NONE,
+		&metadata,
+		image
+	);
+	assert(SUCCEEDED(hr));
+
+	hr = CreateShaderResourceView(
 		RendererManager_GetDevice(),
 		image.GetImages(),
 		image.GetImageCount(),
 		metadata,
 		&g_Texture
 	);
+	assert(SUCCEEDED(hr));
 	assert(g_Texture);
-
 }
 
 void UninitTitle()
@@ -41,8 +48,7 @@ void UpdateTitle()
 
 void DrawTitle()
 {
-
-	DrawSprite(false,g_Texture,
+	DrawSprite(false, g_Texture,
 				{ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f },
 				{ SCREEN_WIDTH, SCREEN_HEIGHT });
 }

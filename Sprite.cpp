@@ -67,9 +67,12 @@ void InitSprite()
 
 	g_Device->CreateBuffer(&bd, &sd, &g_VertexBuffer);
 
-
 	Renderer2D_CreateVS(&g_VertexShader, &g_VertexLayout, "Shader\\UnlitTextureVS.cso");
 	Renderer2D_CreatePS(&g_PixelShader, "Shader\\UnlitTexturePS.cso");
+
+	assert(g_VertexShader);
+	assert(g_PixelShader);
+	assert(g_VertexLayout);
 
 	ScrollOffset.x = 0.0f;
 	ScrollOffset.y = 0.0f;
