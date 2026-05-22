@@ -35,19 +35,16 @@ void ModelRenderer_Initialize()
 {
 	if (g_TexReady) return;
 
-	g_ModelShader.Initialize();
-
-	g_TextureWhite.Load(L"Asset/Texture/white.png");
-	g_NormalFlat.Load(L"Asset/Texture/normal_flat.png");
+	if (!g_ModelShader.Initialize()) return;
 
 	// if texture is null
-	if (!g_TextureWhite.GetSRV())
+	if (!g_TextureWhite.Load(L"Asset/Texture/white.png"))
 	{
 		MessageBox(nullptr, "white.png load failed", "ModelRenderer Error", MB_OK);
 		return;
 	}
 
-	if (!g_NormalFlat.GetSRV())
+	if (!g_NormalFlat.Load(L"Asset/Texture/normal_flat.png"))
 	{
 		MessageBox(nullptr, "normal_flat.png load failed", "ModelRenderer Error", MB_OK);
 		return;

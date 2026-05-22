@@ -37,7 +37,7 @@ public:
 
 private:
 
-	//void UpdateInput(double elapsed_time);
+	void UpdateInput(double elapsed_time);
 	void UpdateMatrices();
 
 private:

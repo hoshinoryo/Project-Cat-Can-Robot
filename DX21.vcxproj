@@ -151,7 +151,8 @@
     <ClCompile Include="model_asset.cpp" />
     <ClCompile Include="model_renderer.cpp" />
     <ClCompile Include="model_shader.cpp" />
-    <ClCompile Include="player.cpp" />
+    <ClCompile Include="Mouse.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Renderer2D.cpp" />
     <ClCompile Include="Renderer3D.cpp" />
     <ClCompile Include="Renderer_Manager.cpp" />
@@ -178,7 +179,8 @@
     <ClInclude Include="model_asset.h" />
     <ClInclude Include="model_renderer.h" />
     <ClInclude Include="model_shader.h" />
-    <ClInclude Include="player.h" />
+    <ClInclude Include="Mouse.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Renderer2D.h" />
     <ClInclude Include="Renderer3D.h" />
     <ClInclude Include="Renderer_Manager.h" />

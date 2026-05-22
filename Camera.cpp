@@ -12,7 +12,7 @@
 
 #include "Camera.h"
 #include "Renderer_Manager.h"
-//#include "mouse.h"
+#include "mouse.h"
 #include "model_shader.h"
 
 using namespace DirectX;
@@ -70,7 +70,7 @@ void PlayerCamera::Update(double elapsed_time)
 	ID3D11DeviceContext* context = RendererManager_GetDeviceContext();
 	if (!context) return;
 
-	//UpdateInput(elapsed_time);
+	UpdateInput(elapsed_time);
 	UpdateMatrices();
 
 	context->VSSetConstantBuffers(1, 1, &m_pVSConstantBufferView);
@@ -86,11 +86,11 @@ void PlayerCamera::Bind()
 	context->VSSetConstantBuffers(2, 1, &m_pVSConstantBufferProj);
 }
 
-/*
+
 void PlayerCamera::UpdateInput(double elapsed_time)
 {
-	//Mouse_State mouseState{};
-	//Mouse_GetState(&mouseState);
+	Mouse_State mouseState{};
+	Mouse_GetState(&mouseState);
 
 	float mouse_dx = (float)(mouseState.x - m_LastMouseX);
 	float mouse_dy = (float)(mouseState.y - m_LastMouseY);
@@ -106,17 +106,17 @@ void PlayerCamera::UpdateInput(double elapsed_time)
 		if (m_Yaw < 0) m_Yaw += XM_2PI;
 
 		m_Pitch += m_MouseSensitivity * mouse_dy;
-		m_Pitch = std::max(MIN_PITCH, std::min(MAX_PITCH, m_Pitch));
+		m_Pitch = (std::max)(MIN_PITCH, (std::min)(MAX_PITCH, m_Pitch));
 	}
 
 	if (mouseState.scrollWheelValue != 0)
 	{
 		m_Distance -= float(mouseState.scrollWheelValue) * 0.01f;
-		//Mouse_ResetScrollWheelValue();
+		Mouse_ResetScrollWheelValue();
 	}
-	m_Distance = std::max(1.5f, std::min(20.0f, m_Distance));
+	m_Distance = (std::max)(1.5f, (std::min)(30.0f, m_Distance));
 }
-*/
+
 
 void PlayerCamera::UpdateMatrices()
 {
@@ -136,11 +136,11 @@ void PlayerCamera::UpdateMatrices()
 	XMVECTOR forward = XMVector3Normalize(XMVectorSet(sinPitch * sinYaw, cosPitch, sinPitch * cosYaw, 0.0f));
 	XMVECTOR worldUp = XMVectorSet(0, 1, 0, 0);
 
-	//XMVECTOR camPos = player - forward * m_Distance + worldUp * m_Height;
-	//XMVECTOR target = player + worldUp * m_LookHeight;
+	XMVECTOR camPos = player - forward * m_Distance + worldUp * m_Height;
+	XMVECTOR target = player + worldUp * m_LookHeight;
 
-	XMVECTOR camPos = XMVectorSet(0.0f, 5.0f, -10.0f, 1.0f);
-	XMVECTOR target = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	//XMVECTOR camPos = XMVectorSet(0.0f, 5.0f, -10.0f, 1.0f);
+	//XMVECTOR target = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
 	XMStoreFloat3(&m_Position, camPos);
 	XMVECTOR camFront = XMVector3Normalize(target - camPos);

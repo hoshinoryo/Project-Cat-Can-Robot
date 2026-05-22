@@ -10,6 +10,7 @@
 #include "Sprite.h"
 #include "Input.h"
 #include "Audio.h"
+#include "Mouse.h"
 
 #include "Title.h"
 #include "Game.h"
@@ -25,10 +26,11 @@ void InitManager()
 	RendererManager_Initialize();
 	Renderer3D_Initialize();
 	Renderer2D_Initialize();
+
+	Mouse_Initialize(GetWindow());
 	
 	InitSprite();
 	InitAudio();
-
 
 	SetScene(SCENE_GAME);
 }
@@ -39,6 +41,8 @@ void UninitManager()
 
 	UninitAudio();
 	UninitSprite();
+
+	Mouse_Finalize();
 
 	Renderer2D_Finalize();
 	Renderer3D_Finalize();

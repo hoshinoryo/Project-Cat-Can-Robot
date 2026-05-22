@@ -1,343 +1,487 @@
+/*==============================================================================
 
+   プレイヤー制御 [player.cpp]
+														 Author : Gu Anyi
+														 Date   : 2025/12/17
 
-#include "main.h"
-#include "Renderer_Manager.h"
+--------------------------------------------------------------------------------
+
+==============================================================================*/
+
 #include "Player.h"
-#include "sprite.h"
+#include "model_asset.h"
+#include "model_renderer.h"
+//#include "key_logger.h"
 #include "Input.h"
-#include "Block.h"
+#include "light.h"
 #include "collision.h"
+//#include "debug_draw_gate.h"
 
-//PCとSwitchは座標系が異なるので、このまま使えないから調整する
-#define	START_POSITION_X ((SCREEN_WIDTH / 4))		//初期位置適当に（地面より上）
-#define	START_POSITION_Y (SCREEN_HEIGHT-80.0f-40.0f)	//初期位置適当に
-#define	PLAYER_SIZE_X	(80.0f)//サイズ適当に
-#define	PLAYER_SIZE_Y	(80.0f)//サイズ適当に
-#define	GROUND			(SCREEN_HEIGHT - 50.0f)//地面のY座標　初期位置より下で座標適当に
-#define	GRAVITY			(9.8f/60.0f*6.0f)		//重力加速度　適当に
+#include <DirectXMath.h>
 
-//	この座標範囲を出たらスクロースする
-#define		SCROLL_LIMIT_UP		(SCREEN_HEIGHT / 4)
-#define		SCROLL_LIMIT_DOWN	(SCREEN_HEIGHT - (SCREEN_HEIGHT / 4))
-#define		SCROLL_LIMIT_LEFT	(SCREEN_WIDTH / 4)
-#define		SCROLL_LIMIT_RIGHT	(SCREEN_WIDTH - (SCREEN_WIDTH / 4))
+using namespace DirectX;
 
-//bool	CollisionBlock();
+static constexpr float AABB_HALF_W = 1.0f;
+static constexpr float AABB_HALF_D = 1.0;
+static constexpr float AABB_HEIGHT = 6.0f;
+
+static constexpr float KILL_Y = -50.0f;
 
 
-PLAYER	Player;
-
-void	PlayerIdle();
-void	PlayerWalk();
-void	PlayerJump();
-void	PlayerFall();
-
-
-PLAYER* GetPlayer()
+Player::Player()
+	//: m_State(AnimState::None)
 {
-	return &Player;
 }
 
-void	InitPlayer()
+Player::~Player()
 {
-
-	ZeroMemory(&Player, sizeof(PLAYER));
-
-	TexMetadata		metadata;
-	ScratchImage	image;
-	LoadFromWICFile(L"Asset\\Texture\\Block.png", WIC_FLAGS_NONE, &metadata, image);
-	//読み込んだ画像データをDirectXへ渡してテクスチャとして管理させる
-	CreateShaderResourceView(
-		RendererManager_GetDevice(),
-		image.GetImages(),
-		image.GetImageCount(),
-		metadata,
-		&Player.TexID
-	);
-	//なんか失敗した場合に警告を出す
-	assert(Player.TexID);
-
-	Player.Use = true;
-	Player.DrawSize = XMFLOAT3(PLAYER_SIZE_X, PLAYER_SIZE_Y,0);
-	Player.CollisionSize = XMFLOAT3(PLAYER_SIZE_X * 0.8f, PLAYER_SIZE_Y * 0.8f,0);
-	Player.Position = XMFLOAT3(START_POSITION_X, START_POSITION_Y, 0);
-	Player.ViewPosition = XMFLOAT3(START_POSITION_X, START_POSITION_Y, 0);
-	Player.Mode = PLAYER_IDLE;
-
-	//
-	Player.Speed = XMFLOAT3(0, 0, 0);					//MakeFloat2(0,0) 移動スピード初期化
-	Player.Kasoku = XMFLOAT3(0, GRAVITY, 0);	//MakeFLoat2(0, 9,8f/60*6, 0) Y値のみ加速度適当に
-
-	Player.Mode = PLAYER_FALL;
-
-}
-void	UninitPlayer()
-{
-	Player.TexID->Release();
+	Finalize();
 }
 
-void	UpdatePlayer()
+void Player::Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& front)
 {
+	m_Position = position;
+	m_Velocity = { 0.0f, 0.0f, 0.0f };
+	XMStoreFloat3(&m_Front, XMVector3Normalize(XMLoadFloat3(&front)));
+	m_IsJump = false;
 
-	switch (Player.Mode)
+	// Load player asset
+	m_Asset = ModelAsset_Load("Asset/Character/Player.FBX", true, 0.5f);
+
+	/*
+	// Customize AABB (hard code)
+	m_LocalAABB.min = { -AABB_HALF_W,        0.0f, -AABB_HALF_D };
+	m_LocalAABB.max = { AABB_HALF_W, AABB_HEIGHT,  AABB_HALF_D };
+	m_WorldAABB = m_LocalAABB;
+
+	// Animation player
+	m_AnimPlayer = new AnimationPlayer();
+
+	// Load animation clip
+	AnimationClip* idleClip = Animation_LoadFromFile("resources/Animation/Idle.fbx", m_Asset, true);
+	int idleId = AnimationManager::Instance().RegisterClip(idleClip);
+	m_ClipIdle = AnimationManager::Instance().GetClipById(idleId);
+
+	AnimationClip* walkClip = Animation_LoadFromFile("resources/Animation/Walking.fbx", m_Asset, true);
+	int walkId = AnimationManager::Instance().RegisterClip(walkClip);
+	m_ClipWalk = AnimationManager::Instance().GetClipById(walkId);
+
+	m_ClipRun = nullptr;
+
+	AnimationClip* jumpClip = Animation_LoadFromFile("resources/Animation/Jump.fbx", m_Asset, true);
+	int jumpId = AnimationManager::Instance().RegisterClip(jumpClip);
+	m_ClipJump = AnimationManager::Instance().GetClipById(jumpId);
+
+	AnimationClip* fallClip = Animation_LoadFromFile("resources/Animation/Falling.fbx", m_Asset, true);
+	int fallId = AnimationManager::Instance().RegisterClip(fallClip);
+	m_ClipFall = AnimationManager::Instance().GetClipById(fallId);
+
+	// Initialize state
+	ChangeState(AnimState::Idle);
+	*/
+}
+
+void Player::Finalize()
+{
+	if (m_Asset)
 	{
-		case PLAYER_IDLE:
-			PlayerIdle(); break;
-		case PLAYER_WALK:
-			PlayerWalk(); break;
-		case PLAYER_JUMP:
-			PlayerJump(); break;
-		case PLAYER_FALL:
-			PlayerFall(); break;
+		ModelAsset_Release(m_Asset);
+		m_Asset = nullptr;
 	}
-	{
-		XMFLOAT2	Scroll = GetScrollOffset();//現在のスクロール値
-		Player.ViewPosition.x = Player.Position.x - Scroll.x;//	相対座標計算
-		Player.ViewPosition.y = Player.Position.y - Scroll.y;
 
-		float	ofsx = 0.0f;
-		float	ofsy = 0.0f;
-		if (Player.ViewPosition.x < SCROLL_LIMIT_LEFT)//相対座標がスクロールリミットを超えたか
+	/*
+	m_ClipIdle = nullptr;
+	m_ClipWalk = nullptr;
+	m_ClipRun = nullptr;
+	m_ClipJump = nullptr;
+	m_ClipFall = nullptr;
+
+	delete m_AnimPlayer;
+	m_AnimPlayer = nullptr;
+	*/
+}
+
+void Player::Update(double elapsed_time, const XMFLOAT3& cameraFront)
+{
+	UpdateMovement(elapsed_time, cameraFront);
+	//UpdatePhysics(elapsed_time);
+	//UpdateState();
+	//UpdateAnimation(elapsed_time);
+}
+
+/*
+void Player::UpdateAnimationOnly(double elapsed_time)
+{
+	UpdateAnimation(elapsed_time);
+}
+*/
+
+void Player::Draw(const XMFLOAT3& cameraPosition)
+{
+	if (!m_Asset) return;
+
+	XMVECTOR pos = XMLoadFloat3(&m_Position);
+	XMVECTOR front = XMLoadFloat3(&m_Front);
+
+	if (XMVector3Equal(front, XMVectorZero()))
+	{
+		front = XMVectorSet(0, 0, 1, 0);
+	}
+
+	front = XMVectorSetY(front, 0.0f);
+	front = XMVector3Normalize(front);
+
+	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+
+	// LookTo
+	XMMATRIX rot = XMMatrixInverse(nullptr, XMMatrixLookToLH(XMVectorZero(), front, up));
+
+	XMMATRIX modelFix = XMMatrixRotationY(XM_PI);
+
+	XMMATRIX trans = XMMatrixTranslationFromVector(pos);
+
+	XMMATRIX world = modelFix * rot * trans;
+
+	/*
+	if (m_AnimPlayer)
+	{
+		Animation_UpdateSkinningCB(*m_AnimPlayer);
+	}
+	*/
+
+	for (uint32_t mi = 0; mi < (uint32_t)m_Asset->meshes.size(); ++mi)
+	{
+		XMMATRIX nodeToModel = XMLoadFloat4x4(&m_Asset->meshes[mi].nodeToModel);
+		XMMATRIX finalWorld = nodeToModel * world;
+
+		ModelRenderer_Draw(m_Asset, mi, finalWorld, cameraPosition);
+	}
+
+	/*
+	if (DebugDraw_Allow(DebugDrawCategory::Collision))
+	{
+		Collision_DebugDraw(m_WorldAABB, { 0.0f, 0.0f, 1.0f, 1.0f });
+	}
+	*/
+}
+
+void Player::DrawDepth()
+{
+	if (!m_Asset) return;
+
+	XMVECTOR pos = XMLoadFloat3(&m_Position);
+	XMVECTOR front = XMLoadFloat3(&m_Front);
+
+	if (XMVector3Equal(front, XMVectorZero()))
+	{
+		front = XMVectorSet(0, 0, 1, 0);
+	}
+
+	front = XMVectorSetY(front, 0.0f);
+	front = XMVector3Normalize(front);
+
+	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+	XMMATRIX rot = XMMatrixInverse(nullptr, XMMatrixLookToLH(XMVectorZero(), front, up));
+	XMMATRIX modelFix = XMMatrixRotationY(XM_PI);
+	XMMATRIX trans = XMMatrixTranslationFromVector(pos);
+	XMMATRIX world = modelFix * rot * trans;
+
+	/*
+	if (m_AnimPlayer)
+	{
+		Animation_UpdateSkinningCB(*m_AnimPlayer);
+	}
+	*/
+
+	for (uint32_t mi = 0; mi < (uint32_t)m_Asset->meshes.size(); ++mi)
+	{
+		XMMATRIX nodeToModel = XMLoadFloat4x4(&m_Asset->meshes[mi].nodeToModel);
+		XMMATRIX finalWorld = nodeToModel * world;
+
+		ModelRenderer_DrawDepth(m_Asset, mi, finalWorld);
+	}
+}
+
+/*
+void Player::SetState(AnimState state)
+{
+	ChangeState(state);
+}
+*/
+
+// Movement
+void Player::UpdateMovement(double elapsed_time, const XMFLOAT3& cameraFront)
+{
+	XMVECTOR velocity = XMLoadFloat3(&m_Velocity);
+
+	// Camera forward -> XZ plane
+	XMVECTOR front = XMLoadFloat3(&cameraFront);
+	front = XMVectorSetY(front, 0.0f);
+
+	if (XMVector3Equal(front, XMVectorZero()))
+	{
+		front = XMVectorSet(0, 0, 1, 0);
+	}
+	front = XMVector3Normalize(front);
+
+	XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+	XMVECTOR right = XMVector3Normalize(XMVector3Cross(up, front));
+
+	float inputX = 0.0f;
+	float inputZ = 0.0f;
+
+	// Moving
+	if (GetKeyPress('W')) inputZ += 1.0f;
+	if (GetKeyPress('S')) inputZ -= 1.0f;
+	if (GetKeyPress('A')) inputX -= 1.0f;
+	if (GetKeyPress('D')) inputX += 1.0f;
+
+	XMVECTOR moveDir = front * inputZ + right * inputX;
+
+	//bool isMoving = false;
+	//m_IsMoving = false;
+
+	if (!XMVector3Equal(moveDir, XMVectorZero()))
+	{
+		moveDir = XMVector3Normalize(moveDir);
+		//m_IsMoving = true;
+
+		/*
+		XMStoreFloat3(&m_Front, moveDir);
+
+		XMVECTOR horizVel = moveDir * m_MoveSpeed;
+		velocity = XMVectorSet(
+			XMVectorGetX(horizVel),
+			XMVectorGetY(velocity),
+			XMVectorGetZ(horizVel),
+			0.0f
+		);
+		*/
+		XMVECTOR pos = XMLoadFloat3(&m_Position);
+		pos += moveDir * m_MoveSpeed * (float)elapsed_time;
+
+		XMStoreFloat3(&m_Position, pos);
+		XMStoreFloat3(&m_Front, moveDir);
+	}
+	/*
+	else
+	{
+		// Keep gravity
+		velocity = XMVectorSet(0.0f, XMVectorGetY(velocity), 0.0f, 0.0f);
+	}
+	*/
+
+	/*
+	if (KeyLogger_IsTrigger(KK_SPACE) && IsOnGround())
+	{
+		velocity += XMVectorSet(0.0f, m_JumpVelocity, 0.0f, 0.0f);
+		m_IsJump = true;
+	}
+	*/
+
+	XMStoreFloat3(&m_Velocity, velocity);
+}
+
+// Gravity and collision simulation
+void Player::UpdatePhysics(double elapsed_time)
+{
+	XMVECTOR position = XMLoadFloat3(&m_Position);
+	XMVECTOR velocity = XMLoadFloat3(&m_Velocity);
+
+	// 重力
+	XMVECTOR gdir = XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
+	velocity += gdir * m_Gravity * (float)elapsed_time;
+	position += velocity * (float)elapsed_time;
+
+	XMStoreFloat3(&m_Position, position);
+	XMStoreFloat3(&m_Velocity, velocity);
+
+	//UpdateAABB();
+
+	/*
+	// 当たり判定
+	bool grounded = false;
+	CollisionSystem::ResolveAgainstScene(*this, m_Position, 4, &grounded);
+
+	UpdateAABB();
+
+	bool prevGround = m_IsGround;
+	m_IsGround = grounded || CheckGroundProbe(0.1f);
+
+	if (m_IsGround)
+	{
+		if (m_Velocity.y < 0.0f) m_Velocity.y = 0.0f;
+		m_IsJump = false;
+	}
+
+	CheckFallState(prevGround);
+	ResetIfFallen(KILL_Y, { 0.0f, 0.0f, 0.0f });
+	*/
+}
+
+/*
+void Player::UpdateAnimation(double elapsed_time)
+{
+	if (!m_AnimPlayer) return;
+
+	m_AnimPlayer->Update(elapsed_time);
+}
+
+void Player::UpdateAABB()
+{
+	m_WorldAABB.min = {
+		m_LocalAABB.min.x + m_Position.x,
+		m_LocalAABB.min.y + m_Position.y,
+		m_LocalAABB.min.z + m_Position.z
+	};
+	m_WorldAABB.max = {
+		m_LocalAABB.max.x + m_Position.x,
+		m_LocalAABB.max.y + m_Position.y,
+		m_LocalAABB.max.z + m_Position.z
+	};
+}
+
+void Player::UpdateState()
+{
+	if (!m_IsGround)
+	{
+		// 上に向く
+		if (m_Velocity.y > 0.1f)
 		{
-			ofsx = Player.ViewPosition.x - SCROLL_LIMIT_LEFT;//超えた場合は差分を計算
+			ChangeState(AnimState::Jump);
+			return;
 		}
-		else if (Player.ViewPosition.x > SCROLL_LIMIT_RIGHT)
+		// 下に降りる
+		if (m_IsFall)
 		{
-			ofsx = Player.ViewPosition.x - SCROLL_LIMIT_RIGHT;
-		}
-		if (Player.ViewPosition.y < SCROLL_LIMIT_UP)
-		{
-			ofsy = Player.ViewPosition.y - SCROLL_LIMIT_UP;
-		}
-		else if (Player.ViewPosition.y > SCROLL_LIMIT_DOWN)
-		{
-			ofsy = Player.ViewPosition.y - SCROLL_LIMIT_DOWN;
+			ChangeState(AnimState::Fall);
+			return;
 		}
 
-		UpdateScrollOffset(ofsx, ofsy);//差分の分だけスクロールさせる
-
+		ChangeState(AnimState::Jump);
+		return;
 	}
 
-	return;
-
-}
-void	DrawPlayer()
-{
-	// マトリクス設定
-	//SetWorldViewProjection2D();
-
-	XMFLOAT2	position = XMFLOAT2(Player.ViewPosition.x, Player.ViewPosition.y);//相対座標で表示
-	XMFLOAT2	size = XMFLOAT2(Player.DrawSize.x, Player.DrawSize.y);
-	XMFLOAT4	color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	DrawSprite(false, Player.TexID, position, { 80.0f, 80.0f });//プレイヤーはスクロール無視
-}
-
-//bool	CollisionBlock()
-//{
-//	BLOCK* Block = GetBlock();
-//
-//	for (int i = 0; i < BLOCK_MAX; i++)
-//	{
-//		if (Player.Use && Block[i].Use)
-//		{
-//
-//			//			bool hit = CheckBoxCollider(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-//			//			bool hit = CheckBoxColliderLeftBottom(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-//			bool hit = CheckBoxColliderRightTop(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-//			if (hit == true) return true;
-//		}
-//
-//
-//
-//
-//	}
-//
-//
-//
-//
-//
-//}
-
-
-
-void	PlayerIdle()//停止状態
-{
-
-	Player.Speed.x = 0.0f;	//停止
-	Player.Speed.y = 0.0f;	//停止
-
-	if (GetKeyPress(VK_LEFT))		//左移動
+	if (m_IsMoving)
 	{
-		Player.Mode = PLAYER_WALK;
-	}
-	else if (GetKeyPress(VK_RIGHT))//右移動
-	{
-		Player.Mode = PLAYER_WALK;
-	}
-	if (GetKeyTrigger('Z'))			//ジャンプ処理
-	{
-		Player.Speed.y = -20.0f;	//移動スピードセット
-		Player.Kasoku.y = GRAVITY;	//加速度セット
-		Player.Mode = PLAYER_JUMP;	//ジャンプへ移行
-	}
-
-
-}
-
-void	PlayerWalk()//歩く
-{
-	if (GetKeyPress(VK_LEFT))		//左移動
-	{
-		Player.Speed.x = -5.0f;
-	}
-	else if (GetKeyPress(VK_RIGHT))//右移動
-	{
-		Player.Speed.x = 5.0f;
+		ChangeState(AnimState::Walk);
 	}
 	else
 	{
-		Player.Speed.x *= 0.8f;		//左右を押していない場合は速度を減衰
-		if (fabs(Player.Speed.x) < 0.05f)
-		{
-			Player.Speed.x = 0.0f;	//停止したらIDLEへ移行
-			Player.Mode = PLAYER_IDLE;
-		}
+		ChangeState(AnimState::Idle);
 	}
-
-	//全ての足場と6点とのチェック
-	BLOCK* Block = GetBlock();
-	bool	hit1 = false;
-	bool	hit2 = false;
-	bool	hit3 = false;
-	bool	hit4 = false;
-	bool	hit5 = false;
-	bool	hit6 = false;
-	for (int i = 0; i < BLOCK_MAX; i++)
-	{
-		if (Player.Use && Block[i].Use)
-		{
-			hit1 |= CheckBoxColliderLeftBottom(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-			hit2 |= CheckBoxColliderRightBottom(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-			hit3 |= CheckBoxColliderLeftTop(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-			hit4 |= CheckBoxColliderRightTop(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-			hit5 |= CheckBoxColliderLeft(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-			hit6 |= CheckBoxColliderRight(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-		}
-	}
-	if ((hit1 == false) && (hit2 == false))//完全に足場に乗っていない
-	{
-		Player.Speed.y = 0.0f;			//移動速度リセット
-		Player.Kasoku.y = GRAVITY;		//加速度リセット
-		Player.Mode = PLAYER_FALL;		//落下モードへ移行
-	}
-
-	if ((hit5 == true) && (Player.Speed.x < 0.0f))	//左にぶつかっている
-	{
-		Player.Speed.x = 0.0f;		//移動速度リセット
-	}
-	else if ((hit6 == true) && (Player.Speed.x > 0.0f))	//右にぶつかっている
-	{
-		Player.Speed.x = 0.0f;		//移動速度リセット
-	}
-
-
-	Player.Position.x += Player.Speed.x;	//座標の更新
-	Player.Position.y += Player.Speed.y;
-	Player.Position.z += Player.Speed.z;
-
-
-	if (GetKeyTrigger('Z'))			//ジャンプ処理
-	{
-		Player.Speed.y = -20.0f;	//移動スピードセット
-		Player.Kasoku.y = GRAVITY;	//加速度セット
-		Player.Mode = PLAYER_JUMP;	//ジャンプへ移行
-	}
-
 }
-void	PlayerJump()//ジャンプ中
+
+void Player::CheckFallState(bool wasGround)
 {
-	if (GetKeyPress(VK_LEFT))		//左移動
+	if (m_IsGround) // when tough the ground
 	{
-		Player.Speed.x = -5.0f;
+		m_FallDistance = 0.0f;
+		m_IsFall = false;
+		return;
 	}
-	else if (GetKeyPress(VK_RIGHT))//右移動
+
+	if (wasGround)
 	{
-		Player.Speed.x = 5.0f;
+		m_FallStartY = m_Position.y;
+		m_FallDistance = 0.0f;
 	}
-	else
+
+	if (m_Velocity.y <= m_FallSpeedThredhold)
 	{
-		Player.Speed.x *= 0.8f;		//左右を押していない場合は速度を減衰
-		if (fabs(Player.Speed.x) < 0.05f)
+		m_FallDistance = std::max(0.0f, m_FallStartY - m_Position.y);
+
+		if (!m_IsFall && m_FallDistance >= m_FallAnimThredhold)
 		{
-			Player.Speed.x = 0.0f;
+			m_IsFall = true;
 		}
 	}
-
-	Player.Speed.y += Player.Kasoku.y;		//加速度をスピードへ加算
-
-	if (Player.Speed.y > 0.0f)				//移動スピードが下へ向いた
-	{
-		Player.Mode = PLAYER_FALL;			//落下へ移行
-	}
-
-	Player.Position.x += Player.Speed.x;	//座標の更新
-	Player.Position.y += Player.Speed.y;
-	Player.Position.z += Player.Speed.z;
-
 }
-void	PlayerFall()//落下中
+
+void Player::ChangeState(AnimState newState)
 {
+	if (!m_AnimPlayer || !m_Asset) return;
+	if (m_State == newState) return;
 
-	if (GetKeyPress(VK_LEFT))		//左移動
+	m_State = newState;
+
+	switch (m_State)
 	{
-		Player.Speed.x = -5.0f;
-	}
-	else if (GetKeyPress(VK_RIGHT))//右移動
-	{
-		Player.Speed.x = 5.0f;
-	}
-	else
-	{
-		Player.Speed.x *= 0.8f;		//左右を押していない場合は速度を減衰
-		if (fabs(Player.Speed.x) < 0.05f)
+	case AnimState::Idle:
+		if (m_ClipIdle)
 		{
-			Player.Speed.x = 0.0f;
+			m_AnimPlayer->Play(m_ClipIdle, m_Asset, true, 0.0);
 		}
-	}
+		break;
 
-	Player.Speed.y += Player.Kasoku.y;		//加速度をスピードへ加算
-	if (Player.Speed.y > 78.0f)
-	{
-		Player.Speed.y = 78.0f;	//加速限界
-	}
-	Player.Position.x += Player.Speed.x;	//座標の更新
-	Player.Position.y += Player.Speed.y;
-	Player.Position.z += Player.Speed.z;
-
-
-	//足場チェック
-	BLOCK* Block = GetBlock();
-	for (int i = 0; i < BLOCK_MAX; i++)
-	{
-		if (Player.Use && Block[i].Use)
+	case AnimState::Walk:
+		if (m_ClipWalk)
 		{
-			bool hit1 = CheckBoxColliderLeftBottom(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-			bool hit2 = CheckBoxColliderRightBottom(Player.Position, Block[i].Position, Player.DrawSize, Block[i].DrawSize);
-			if ( (hit1 == true)||(hit2==true))
-			{	//足場の上にきっちり表示位置を補正する
-				float	pos = -Player.DrawSize.y /2;
-				pos += Block[i].Position.y - (Block[i].DrawSize.y / 2);
-				Player.Position.y = pos;
-
-				Player.Speed.y = 0.0f;		//移動速度リセット
-				Player.Kasoku.y = 0.0f;		//加速度リセット
-
-				Player.Mode = PLAYER_WALK;	//歩き状態へ移行
-				break;
-			}
+			m_AnimPlayer->Play(m_ClipWalk, m_Asset, true, 0.0);
 		}
+		break;
+
+	case AnimState::Run:
+		if (m_ClipRun)
+		{
+			m_AnimPlayer->Play(m_ClipRun, m_Asset, true, 0.0);
+		}
+		break;
+
+	case AnimState::Jump:
+		if (m_ClipJump)
+		{
+			m_AnimPlayer->Play(m_ClipJump, m_Asset, false, 0.0);
+		}
+		else if (m_ClipWalk)
+		{
+			m_AnimPlayer->Play(m_ClipWalk, m_Asset, true, 0.0);
+		}
+		break;
+
+	case AnimState::Fall:
+		if (m_ClipFall)
+		{
+			m_AnimPlayer->Play(m_ClipFall, m_Asset, true, 0.0);
+		}
+		break;
+
+	default:
+		break;
 	}
-
-	return;
-
 }
+
+// detect player foot and the ground
+bool Player::CheckGroundProbe(float probe) const
+{
+	AABB probeBox = m_WorldAABB;
+	probeBox.max.y = probeBox.min.y + probe;
+	probeBox.min.y -= probe;
+
+	for (const AABB& s : CollisionSystem::AllColliders())
+	{
+		if (Collision_IsOverlapAABB(probeBox, s))
+			return true;
+	}
+
+	return false;
+}
+
+void Player::ResetIfFallen(float killY, const DirectX::XMFLOAT3& respawnPos)
+{
+	if (m_Position.y < killY)
+	{
+		m_Position = respawnPos;
+		m_Velocity = { 0.0f, 0.0f, 0.0f };
+		m_IsJump = false;
+		m_IsGround = false;
+
+		UpdateAABB();
+	}
+}
+
+bool Player::IsOnGround() const
+{
+	return m_IsGround;
+}
+*/
