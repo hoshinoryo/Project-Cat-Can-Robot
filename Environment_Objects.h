@@ -18,4 +18,7 @@ namespace EnvironmentObjects
 		const DirectX::XMFLOAT3& scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f)
 	);
 	void Draw(const DirectX::XMFLOAT3& cameraPosition);
+
+	// Playfield raycasting
+	bool GetPlayFieldY(float x, float z, float& outY);
 }

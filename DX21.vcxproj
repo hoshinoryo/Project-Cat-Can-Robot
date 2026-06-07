@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -139,7 +139,7 @@
     <ClCompile Include="Bg.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="collision.cpp" />
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="d3d11_state_guard_util.cpp" />
     <ClCompile Include="Environment_Objects.cpp" />
     <ClCompile Include="Environment_Objects.h" />
@@ -169,7 +169,7 @@
     <ClInclude Include="Bg.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="collision.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="d3d11_state_guard_util.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Input.h" />

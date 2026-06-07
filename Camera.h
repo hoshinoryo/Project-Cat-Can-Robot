@@ -50,7 +50,7 @@ private:
 	float m_Pitch = DirectX::XMConvertToRadians(20.0f);
 	float m_CameraFov = 60.0f;
 
-	float m_Distance = 6.0f;
+	float m_Distance = 20.0f;
 	float m_Height = 5.0f;
 	float m_LookHeight = 1.5f;
 

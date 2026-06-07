@@ -32,7 +32,7 @@ void InitManager()
 	InitSprite();
 	InitAudio();
 
-	SetScene(SCENE_TITLE);
+	SetScene(SCENE_GAME); // from game scene
 }
 
 void UninitManager()

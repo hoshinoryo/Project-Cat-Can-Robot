@@ -26,7 +26,7 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
-#include "collision.h"
+#include "Collision.h"
 #include "Renderer3D.h"
 
 class Default3DMaterial;
@@ -58,9 +58,13 @@ struct MeshAsset
 	uint32_t materialIndex = 0;
 
 	bool skinned = false;
-	//AABB localAABB{};
+	AABB localAABB{};
 
 	DirectX::XMFLOAT4X4 nodeToModel{}; // accumulated matrix
+
+	// CPU resources
+	std::vector<VERTEX_3D> cpuVertices;
+	std::vector<uint32_t> cpuIndices;
 };
 
 // fbxƒtƒ@ƒCƒ‹‚²‚Æ‚ÉŠÇ—‚³‚ê‚Ä‚¢‚é

@@ -35,7 +35,7 @@ static void LoadAllModelTextures(ModelAsset* asset, const std::string& directory
 //	const aiMesh* mesh,
 //	const std::unordered_map<std::string, int>& boneNameToIndex
 //);
-//static AABB ComputeLocalAABB(const aiMesh* mesh);
+static AABB ComputeLocalAABB(const aiMesh* mesh);
 
 // Path normalization
 static std::string NormalizePath(std::string p);
@@ -82,26 +82,27 @@ ModelAsset* ModelAsset_Load(const char* filename, bool yUp, float scale)
 
 		out.skinned = (mesh->mNumBones > 0);
 		out.materialIndex = mesh->mMaterialIndex;
-		//out.localAABB = ComputeLocalAABB(mesh);
+		out.localAABB = ComputeLocalAABB(mesh);
 		out.nodeToModel = nodeToModel[m];
 
 		// Vertex buffer
-		VERTEX_3D* vertex = new VERTEX_3D[mesh->mNumVertices];
+		//VERTEX_3D* vertex = new VERTEX_3D[mesh->mNumVertices];
+		out.cpuVertices.resize(mesh->mNumVertices);
 
 		for (unsigned int v = 0; v < mesh->mNumVertices; v++)
 		{
-			vertex[v].Position = XMFLOAT3{ mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z }; // position
-			vertex[v].Normal   = XMFLOAT3{ mesh->mNormals[v].x,  mesh->mNormals[v].y,  mesh->mNormals[v].z };  // normal
-			vertex[v].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); // vertex color
+			out.cpuVertices[v].Position = XMFLOAT3{ mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z }; // position
+			out.cpuVertices[v].Normal   = XMFLOAT3{ mesh->mNormals[v].x,  mesh->mNormals[v].y,  mesh->mNormals[v].z };  // normal
+			out.cpuVertices[v].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); // vertex color
 
 			// Tangent
 			if (mesh->mTangents)
 			{
-				vertex[v].Tangent = XMFLOAT3{ mesh->mTangents[v].x, mesh->mTangents[v].y, mesh->mTangents[v].z };
+				out.cpuVertices[v].Tangent = XMFLOAT3{ mesh->mTangents[v].x, mesh->mTangents[v].y, mesh->mTangents[v].z };
 			}
 			else
 			{
-				vertex[v].Tangent = { 1, 0, 0 };
+				out.cpuVertices[v].Tangent = { 1, 0, 0 };
 			}
 		}
 
@@ -109,7 +110,7 @@ ModelAsset* ModelAsset_Load(const char* filename, bool yUp, float scale)
 		//ApplySkinWeightToVertices(vertex, mesh, asset->boneNameToIndex);
 
 		// UV
-		AssignUVForMesh(vertex, mesh);
+		AssignUVForMesh(out.cpuVertices.data(), mesh);
 
 		D3D11_BUFFER_DESC vbd;
 		ZeroMemory(&vbd, sizeof(vbd));
@@ -118,25 +119,27 @@ ModelAsset* ModelAsset_Load(const char* filename, bool yUp, float scale)
 		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
+		// Vertex buffer create
 		D3D11_SUBRESOURCE_DATA vsd;
-		ZeroMemory(&vsd, sizeof(vsd));
-		vsd.pSysMem = vertex;
+		//ZeroMemory(&vsd, sizeof(vsd));
+		vsd.pSysMem = out.cpuVertices.data();
 
 		RendererManager_GetDevice()->CreateBuffer(&vbd, &vsd, &out.vertexBuffer);
 
-		delete[] vertex;
+		//delete[] vertex;
 
 		// Index buffer
-		unsigned int* index = new unsigned int[mesh->mNumFaces * 3];
+		//unsigned int* index = new unsigned int[mesh->mNumFaces * 3];
+		out.cpuIndices.resize(mesh->mNumFaces * 3);
 
 		for (unsigned int f = 0; f < mesh->mNumFaces; f++)
 		{
 			const aiFace* face = &mesh->mFaces[f];
 			assert(face->mNumIndices == 3);
 
-			index[f * 3 + 0] = face->mIndices[0];
-			index[f * 3 + 1] = face->mIndices[1];
-			index[f * 3 + 2] = face->mIndices[2];
+			out.cpuIndices[f * 3 + 0] = face->mIndices[0];
+			out.cpuIndices[f * 3 + 1] = face->mIndices[1];
+			out.cpuIndices[f * 3 + 2] = face->mIndices[2];
 		}
 
 		D3D11_BUFFER_DESC ibd;
@@ -148,11 +151,11 @@ ModelAsset* ModelAsset_Load(const char* filename, bool yUp, float scale)
 
 		D3D11_SUBRESOURCE_DATA isd;
 		ZeroMemory(&isd, sizeof(isd));
-		isd.pSysMem = index;
+		isd.pSysMem = out.cpuIndices.data();
 
 		RendererManager_GetDevice()->CreateBuffer(&ibd, &isd, &out.indexBuffer);
 
-		delete[] index;
+		//delete[] index;
 
 		out.indexCount = mesh->mNumFaces * 3;
 	}
@@ -654,7 +657,7 @@ static void ApplySkinWeightToVertices(VERTEX_3D* vertices, const aiMesh* mesh, c
 }
 */
 
-/*
+
 static AABB ComputeLocalAABB(const aiMesh* mesh)
 {
 	XMFLOAT3 min = { FLT_MAX,  FLT_MAX,  FLT_MAX };
@@ -664,15 +667,14 @@ static AABB ComputeLocalAABB(const aiMesh* mesh)
 	{
 		const aiVector3D& p = mesh->mVertices[v];
 
-		min.x = std::min(min.x, p.x);
-		min.y = std::min(min.y, p.y);
-		min.z = std::min(min.z, p.z);
+		min.x = (std::min)(min.x, p.x);
+		min.y = (std::min)(min.y, p.y);
+		min.z = (std::min)(min.z, p.z);
 
-		max.x = std::max(max.x, p.x);
-		max.y = std::max(max.y, p.y);
-		max.z = std::max(max.z, p.z);
+		max.x = (std::max)(max.x, p.x);
+		max.y = (std::max)(max.y, p.y);
+		max.z = (std::max)(max.z, p.z);
 	}
 
 	return { min, max };
 }
-*/

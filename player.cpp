@@ -15,6 +15,7 @@
 #include "Input.h"
 #include "light.h"
 #include "collision.h"
+#include "Environment_Objects.h"
 //#include "debug_draw_gate.h"
 
 #include <DirectXMath.h>
@@ -48,12 +49,9 @@ void Player::Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOA
 	// Load player asset
 	m_Asset = ModelAsset_Load("Asset/Character/Player.FBX", true, 0.5f);
 
-	/*
-	// Customize AABB (hard code)
-	m_LocalAABB.min = { -AABB_HALF_W,        0.0f, -AABB_HALF_D };
-	m_LocalAABB.max = { AABB_HALF_W, AABB_HEIGHT,  AABB_HALF_D };
-	m_WorldAABB = m_LocalAABB;
+	UpdateAABB();
 
+	/*
 	// Animation player
 	m_AnimPlayer = new AnimationPlayer();
 
@@ -104,7 +102,7 @@ void Player::Finalize()
 void Player::Update(double elapsed_time, const XMFLOAT3& cameraFront)
 {
 	UpdateMovement(elapsed_time, cameraFront);
-	//UpdatePhysics(elapsed_time);
+	UpdatePhysics(elapsed_time);
 	//UpdateState();
 	//UpdateAnimation(elapsed_time);
 }
@@ -285,38 +283,52 @@ void Player::UpdateMovement(double elapsed_time, const XMFLOAT3& cameraFront)
 // Gravity and collision simulation
 void Player::UpdatePhysics(double elapsed_time)
 {
+	float dt = static_cast<float>(elapsed_time) / 1000.0f;
+
 	XMVECTOR position = XMLoadFloat3(&m_Position);
 	XMVECTOR velocity = XMLoadFloat3(&m_Velocity);
 
-	// èdóÕ
-	XMVECTOR gdir = XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
-	velocity += gdir * m_Gravity * (float)elapsed_time;
-	position += velocity * (float)elapsed_time;
-
-	XMStoreFloat3(&m_Position, position);
-	XMStoreFloat3(&m_Velocity, velocity);
-
-	//UpdateAABB();
-
-	/*
-	// ìñÇΩÇËîªíË
-	bool grounded = false;
-	CollisionSystem::ResolveAgainstScene(*this, m_Position, 4, &grounded);
-
-	UpdateAABB();
-
-	bool prevGround = m_IsGround;
-	m_IsGround = grounded || CheckGroundProbe(0.1f);
-
-	if (m_IsGround)
+	// Gravity
+	if (!m_IsGround)
 	{
-		if (m_Velocity.y < 0.0f) m_Velocity.y = 0.0f;
-		m_IsJump = false;
+		float velocityY = XMVectorGetY(velocity);
+		velocityY -= m_Gravity * dt;
+		velocity = XMVectorSetY(velocity, velocityY);
 	}
 
-	CheckFallState(prevGround);
-	ResetIfFallen(KILL_Y, { 0.0f, 0.0f, 0.0f });
-	*/
+	position += velocity * dt;
+
+	XMFLOAT3 nextPositon{}; // position at next frame
+	XMStoreFloat3(&nextPositon, position);
+
+	m_Position = nextPositon; // write back
+	UpdateAABB();
+
+	//bool grounded = false;
+	//CollisionSystem::ResolveAgainstScene(m_AABB, m_Position, 4, &grounded); // ìñÇΩÇËîªíË
+	float groundY = 0.0f;
+	bool grounded = EnvironmentObjects::GetPlayFieldY(m_Position.x, m_Position.z, groundY);
+
+	if (grounded && m_Position.y <= groundY)
+	{
+		m_Position.y = groundY;
+		velocity = XMVectorSetY(velocity, 0.0f);
+
+		m_IsGround = true;
+		m_IsFall = false;
+		m_IsJump = false;
+	}
+	else
+	{
+		m_IsGround = false;
+		m_IsFall = XMVectorGetY(velocity) < 0.0f;
+	}
+
+	XMStoreFloat3(&m_Velocity, velocity);
+	UpdateAABB();
+
+	//CheckFallState(prevGround);
+	//ResetIfFallen(KILL_Y, { 0.0f, 0.0f, 0.0f });
 }
 
 /*
@@ -326,21 +338,23 @@ void Player::UpdateAnimation(double elapsed_time)
 
 	m_AnimPlayer->Update(elapsed_time);
 }
+*/
 
 void Player::UpdateAABB()
 {
-	m_WorldAABB.min = {
-		m_LocalAABB.min.x + m_Position.x,
-		m_LocalAABB.min.y + m_Position.y,
-		m_LocalAABB.min.z + m_Position.z
+	m_AABB.min = {
+		m_Position.x - m_AABBHalfW,
+		m_Position.y,
+		m_Position.z - m_AABBHalfD
 	};
-	m_WorldAABB.max = {
-		m_LocalAABB.max.x + m_Position.x,
-		m_LocalAABB.max.y + m_Position.y,
-		m_LocalAABB.max.z + m_Position.z
+	m_AABB.max = {
+		m_Position.x + m_AABBHalfW,
+		m_Position.y + m_AABBHeight,
+		m_Position.z + m_AABBHalfD
 	};
 }
 
+/*
 void Player::UpdateState()
 {
 	if (!m_IsGround)

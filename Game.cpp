@@ -30,7 +30,7 @@ void Game_Initialize()
 	//g_LightManager.SetPointLight(0, DirectX::XMFLOAT3(0.0f, 3.0f, 0.0f), 8.0f, DirectX::XMFLOAT3(1.0f, 0.8f, 0.6f));
 
 	EnvironmentObjects::Initialize();
-	g_Player.Initialize(XMFLOAT3(0.0f, 3.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
+	g_Player.Initialize(XMFLOAT3(0.0f, 30.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
 
 	g_AudioBGM = LoadAudio("Asset\\Audio\\BGM.wav");
 	//PlayAudio(g_AudioBGM, true);
@@ -50,8 +50,9 @@ void Game_Finalize()
 void Game_Update(double elapsed_Time)
 {
 	// 3D
-	g_PlayerCamera.Update(elapsed_Time);
 	g_Player.Update(elapsed_Time, g_PlayerCamera.GetFront());
+	g_PlayerCamera.Update(elapsed_Time);
+	
 
 	if (GetKeyTrigger(VK_RETURN))
 	{

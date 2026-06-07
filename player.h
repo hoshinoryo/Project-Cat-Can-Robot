@@ -13,8 +13,7 @@
 #include <DirectXMath.h>
 
 //#include "animation.h"
-#include "collision.h"
-//#include "aabb_provider.h"
+#include "Collision.h"
 
 struct ModelAsset;
 
@@ -65,8 +64,8 @@ private:
 	bool m_IsFall = false;
 	bool m_IsMoving = false;
 
-	float m_MoveSpeed = 0.03f;
-	float m_Gravity = 9.8f * 10.0f;
+	float m_MoveSpeed = 0.02f;
+	float m_Gravity = 9.8f;
 	float m_JumpVelocity = 40.0f;
 
 	// Fall judgement
@@ -77,13 +76,17 @@ private:
 	float m_FallSpeedThredhold = -0.5f;
 
 	ModelAsset* m_Asset = nullptr;
-	//AABB m_LocalAABB{};
-	//AABB m_WorldAABB{};
+
+	// Collision system
+	AABB m_AABB{};
+	float m_AABBHalfW = 1.0f;
+	float m_AABBHalfD = 1.0f;
+	float m_AABBHeight = 4.0f;
 
 	void UpdateMovement(double elapsed_time, const DirectX::XMFLOAT3& cameraFront);
 	void UpdatePhysics(double elapsed_time);
 	//void UpdateAnimation(double elapsed_time);
-	//void UpdateAABB();
+	void UpdateAABB();
 	//void UpdateState();
 
 	//void ChangeState(AnimState newState); // Status machine

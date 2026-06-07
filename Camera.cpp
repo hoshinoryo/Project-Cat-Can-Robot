@@ -111,10 +111,10 @@ void PlayerCamera::UpdateInput(double elapsed_time)
 
 	if (mouseState.scrollWheelValue != 0)
 	{
-		m_Distance -= float(mouseState.scrollWheelValue) * 0.01f;
+		m_Distance -= float(mouseState.scrollWheelValue) * 0.05f;
 		Mouse_ResetScrollWheelValue();
 	}
-	m_Distance = (std::max)(1.5f, (std::min)(30.0f, m_Distance));
+	m_Distance = (std::max)(1.5f, (std::min)(100.0f, m_Distance));
 }
 
 
@@ -155,7 +155,7 @@ void PlayerCamera::UpdateMatrices()
 	float fov = XMConvertToRadians(m_CameraFov);
 	float aspectRatio = (float)SCREEN_WIDTH / SCREEN_HEIGHT;
 	float nearZ = 0.1f;
-	float farZ = 100.0f;
+	float farZ = 200.0f;
 	XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearZ, farZ);
 	XMStoreFloat4x4(&m_Proj, proj);
 	XMMATRIX invProj = XMMatrixInverse(nullptr, proj);
