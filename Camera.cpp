@@ -114,7 +114,7 @@ void PlayerCamera::UpdateInput(double elapsed_time)
 		m_Distance -= float(mouseState.scrollWheelValue) * 0.05f;
 		Mouse_ResetScrollWheelValue();
 	}
-	m_Distance = (std::max)(1.5f, (std::min)(100.0f, m_Distance));
+	m_Distance = (std::max)(1.5f, (std::min)(60.0f, m_Distance));
 }
 
 

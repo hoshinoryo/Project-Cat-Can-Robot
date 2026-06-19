@@ -19,6 +19,7 @@
 //#include "debug_draw_gate.h"
 
 #include <DirectXMath.h>
+#include "Item.h"
 
 using namespace DirectX;
 

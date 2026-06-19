@@ -1,7 +1,6 @@
 #include <vector>
 #include <assert.h>
 #include <cmath>
-#include <unordered_map>
 #include <cfloat>
 
 #include "Environment_Objects.h"
@@ -13,26 +12,13 @@ using namespace DirectX;
 
 namespace EnvironmentObjects
 {
-	// Playfield collision AABB
-	static constexpr float PLAYFIELD_GRID_SIZE = 1.0f;
-	static constexpr float PLAYFIELD_COLLIDER_THICKNESS = 1.0f;
-
-
-	struct EnvironmentObject
-	{
-		std::string m_Name;
-		ModelAsset* m_Asset{};
-
-		XMFLOAT3 m_Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		XMFLOAT3 m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		XMFLOAT3 m_Scale    = XMFLOAT3(1.0f, 1.0f, 1.0f);
-	};
-
+	/*
 	struct HeightPoint
 	{
 		float y = 0.0f;
 		bool exists = false;
 	};
+	*/
 	
 	static std::vector<EnvironmentObject> g_EnvironmentObjects;
 
@@ -56,91 +42,10 @@ namespace EnvironmentObjects
 		return scale * rotation * translation;
 	}
 
+	/*
 	static long long MakeGridKey(int x, int z)
 	{
 		return (static_cast<long long>(x) << 32) ^ static_cast<unsigned int>(z);
-	}
-	
-	/*
-	static void AddPlayFieldGridAABBs(const EnvironmentObject& object)
-	{
-		if (!object.m_Asset || !object.m_Asset->aiScene) return;
-
-		std::unordered_map<long long, HeightPoint> heightMap;
-
-		int minGridX = INT_MAX;
-		int maxGridX = -INT_MAX;
-		int minGridZ = INT_MAX;
-		int maxGridZ = -INT_MAX;
-
-		XMMATRIX objectWorld = CreateWorldMatrix(object);
-
-		for (unsigned int meshIndex = 0; meshIndex < object.m_Asset->aiScene->mNumMeshes; meshIndex++)
-		{
-			const aiMesh* mesh = object.m_Asset->aiScene->mMeshes[meshIndex];
-			if (!mesh) continue;
-
-			XMMATRIX nodeToModel = XMLoadFloat4x4(&object.m_Asset->meshes[meshIndex].nodeToModel);
-			XMMATRIX world = nodeToModel * objectWorld;
-
-			for (unsigned int v = 0; v < mesh->mNumVertices; v++)
-			{
-				XMVECTOR localPos = XMVectorSet(
-					mesh->mVertices[v].x,
-					mesh->mVertices[v].y,
-					mesh->mVertices[v].z,
-					1.0f
-				);
-
-				XMVECTOR worldPos = XMVector3TransformCoord(localPos, world);
-
-				float wx = XMVectorGetX(worldPos);
-				float wy = XMVectorGetY(worldPos);
-				float wz = XMVectorGetZ(worldPos);
-
-				int gx = static_cast<int>(std::round(wx / PLAYFIELD_GRID_SIZE));
-				int gz = static_cast<int>(std::round(wz / PLAYFIELD_GRID_SIZE));
-
-				long long key = MakeGridKey(gx, gz);
-				heightMap[key].y = wy;
-				heightMap[key].exists = true;
-
-				minGridX = (std::min)(minGridX, gx);
-				maxGridX = (std::max)(maxGridX, gx);
-				minGridZ = (std::min)(minGridZ, gz);
-				maxGridZ = (std::max)(maxGridZ, gz);
-			}
-		}
-
-		if (heightMap.empty()) return;
-
-		for (int z = minGridZ; z < maxGridZ; z++)
-		{
-			for (int x = minGridX; x < maxGridX; x++)
-			{
-				HeightPoint p00 = heightMap[MakeGridKey(x,     z)];
-				HeightPoint p10 = heightMap[MakeGridKey(x + 1, z)];
-				HeightPoint p01 = heightMap[MakeGridKey(x,     z + 1)];
-				HeightPoint p11 = heightMap[MakeGridKey(x + 1, z + 1)];
-
-				if (!p00.exists || !p10.exists || !p01.exists || !p11.exists)
-				{
-					continue;
-				}
-
-				float topY = (p00.y + p10.y + p01.y + p11.y) / 4;
-
-				AABB aabb{};
-				aabb.min.x = x * PLAYFIELD_GRID_SIZE;
-				aabb.max.x = (x + 1) * PLAYFIELD_GRID_SIZE;
-				aabb.min.z = z * PLAYFIELD_GRID_SIZE;
-				aabb.max.z = (z + 1) * PLAYFIELD_GRID_SIZE;
-				aabb.max.y = topY;
-				aabb.min.y = topY - PLAYFIELD_COLLIDER_THICKNESS;
-
-				CollisionSystem::AddCollidersAABB(aabb);
-			}
-		}
 	}
 	*/
 
@@ -196,7 +101,45 @@ namespace EnvironmentObjects
 		return true;
 	}
 
+	void EnvironmentObject::Update(double elapsed_time)
+	{
+	}
 
+	void EnvironmentObject::Draw(const XMFLOAT3& cameraPosition)
+	{
+		if (!m_Asset) return;
+
+		XMMATRIX world = CreateWorldMatrix(*this);
+
+		for (uint32_t meshIndex = 0; meshIndex < m_Asset->meshes.size(); meshIndex++)
+		{
+			ModelRenderer_Draw(
+				m_Asset,
+				meshIndex,
+				world,
+				cameraPosition
+			);
+		}
+	}
+
+	AABB EnvironmentObject::GetAABB() const
+	{
+		AABB aabb{};
+
+		aabb.min = DirectX::XMFLOAT3(
+			m_Position.x - 0.5f * m_Scale.x,
+			m_Position.y - 0.5f * m_Scale.y,
+			m_Position.z - 0.5f * m_Scale.z
+		);
+
+		aabb.max = DirectX::XMFLOAT3(
+			m_Position.x + 0.5f * m_Scale.x,
+			m_Position.y + 0.5f * m_Scale.y,
+			m_Position.z + 0.5f * m_Scale.z
+		);
+
+		return aabb;
+	}
 
 	void Initialize()
 	{
@@ -215,6 +158,14 @@ namespace EnvironmentObjects
 		g_EnvironmentObjects.clear();
 	}
 
+	void Update(double elapsed_time)
+	{
+		for (EnvironmentObject& object : g_EnvironmentObjects)
+		{
+			object.Update(elapsed_time);
+		}
+	}
+
 	void AddObject(const std::string& name, ModelAsset* asset, const XMFLOAT3& position, const XMFLOAT3& rotation, const XMFLOAT3& scale)
 	{
 		if (!asset) return;
@@ -227,33 +178,13 @@ namespace EnvironmentObjects
 		object.m_Scale = scale;
 
 		g_EnvironmentObjects.push_back(object);
-
-		// Now using raycast
-		/*
-		if (name == "playField")
-		{
-			AddPlayFieldGridAABBs(g_EnvironmentObjects.back());
-		}
-		*/
 	}
 
 	void Draw(const DirectX::XMFLOAT3& cameraPosition)
 	{
 		for (EnvironmentObject& object : g_EnvironmentObjects)
 		{
-			if (!object.m_Asset) continue;
-
-			XMMATRIX world = CreateWorldMatrix(object);
-
-			for (uint32_t meshIndex = 0; meshIndex < object.m_Asset->meshes.size(); meshIndex++)
-			{
-				ModelRenderer_Draw(
-					object.m_Asset,
-					meshIndex,
-					world,
-					cameraPosition
-				);
-			}
+			object.Draw(cameraPosition);
 		}
 	}
 

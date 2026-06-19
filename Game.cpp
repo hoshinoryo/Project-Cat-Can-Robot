@@ -11,11 +11,13 @@
 
 #include "Player.h"
 #include "Environment_Objects.h"
+#include "Item_Spawner.h"
 
 
 static int g_AudioBGM;
 static PlayerCamera g_PlayerCamera;
 static Player g_Player;
+static ItemSpawner g_ItemSpawner;
 
 
 void Game_Initialize()
@@ -30,7 +32,8 @@ void Game_Initialize()
 	//g_LightManager.SetPointLight(0, DirectX::XMFLOAT3(0.0f, 3.0f, 0.0f), 8.0f, DirectX::XMFLOAT3(1.0f, 0.8f, 0.6f));
 
 	EnvironmentObjects::Initialize();
-	g_Player.Initialize(XMFLOAT3(0.0f, 30.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
+	g_Player.Initialize(XMFLOAT3(0.0f, 15.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
+	g_ItemSpawner.Initialize();
 
 	g_AudioBGM = LoadAudio("Asset\\Audio\\BGM.wav");
 	//PlayAudio(g_AudioBGM, true);
@@ -41,6 +44,7 @@ void Game_Finalize()
 	UnloadAudio(g_AudioBGM);
 
 	//3D
+	g_ItemSpawner.Finalize();
 	g_Player.Finalize();
 	EnvironmentObjects::Finalize();
 	g_LightManager.Finalize();
@@ -51,9 +55,13 @@ void Game_Update(double elapsed_Time)
 {
 	// 3D
 	g_Player.Update(elapsed_Time, g_PlayerCamera.GetFront());
+	g_PlayerCamera.SetFollowTarget(&g_Player.GetPosition());
 	g_PlayerCamera.Update(elapsed_Time);
-	
 
+	EnvironmentObjects::Update(elapsed_Time);
+	g_ItemSpawner.Update(elapsed_Time);
+
+	// Scene switch
 	if (GetKeyTrigger(VK_RETURN))
 	{
 		SetScene(SCENE_RESULT);
@@ -68,6 +76,7 @@ void Game_Draw()
 	XMFLOAT3 cameraPos = g_PlayerCamera.GetPosition();
 
 	EnvironmentObjects::Draw(cameraPos);
+	g_ItemSpawner.Draw(cameraPos);
 	g_Player.Draw(cameraPos);
 }
 
