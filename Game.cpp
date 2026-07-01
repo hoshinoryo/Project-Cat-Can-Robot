@@ -59,7 +59,7 @@ void Game_Update(double elapsed_Time)
 	g_PlayerCamera.Update(elapsed_Time);
 
 	EnvironmentObjects::Update(elapsed_Time);
-	g_ItemSpawner.Update(elapsed_Time);
+	g_ItemSpawner.Update(elapsed_Time, g_Player);
 
 	// Scene switch
 	if (GetKeyTrigger(VK_RETURN))

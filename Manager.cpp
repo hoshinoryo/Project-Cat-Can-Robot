@@ -32,6 +32,7 @@ void InitManager()
 	InitSprite();
 	InitAudio();
 
+	// ---- START SCENE SETTING ----
 	SetScene(SCENE_GAME); // from game scene
 }
 

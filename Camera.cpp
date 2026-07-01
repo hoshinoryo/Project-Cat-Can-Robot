@@ -17,9 +17,10 @@
 
 using namespace DirectX;
 
-
-static const float MIN_PITCH = XMConvertToRadians(91.0f);
-static const float MAX_PITCH = XMConvertToRadians(179.0f);
+static const float MIN_PITCH = XMConvertToRadians(30.0f);
+static const float MAX_PITCH = XMConvertToRadians(135.0f);
+static const float HORIZONTAL_PITCH = XMConvertToRadians(90.0f);
+static const float BLEND_RANGE = XMConvertToRadians(8.0f);
 
 bool PlayerCamera::Initialize()
 {
@@ -114,7 +115,7 @@ void PlayerCamera::UpdateInput(double elapsed_time)
 		m_Distance -= float(mouseState.scrollWheelValue) * 0.05f;
 		Mouse_ResetScrollWheelValue();
 	}
-	m_Distance = (std::max)(1.5f, (std::min)(60.0f, m_Distance));
+	m_Distance = (std::max)(1.5f, (std::min)(40.0f, m_Distance));
 }
 
 
@@ -133,19 +134,45 @@ void PlayerCamera::UpdateMatrices()
 	float cosYaw = cosf(m_Yaw);
 
 	// Camera forward
-	XMVECTOR forward = XMVector3Normalize(XMVectorSet(sinPitch * sinYaw, cosPitch, sinPitch * cosYaw, 0.0f));
 	XMVECTOR worldUp = XMVectorSet(0, 1, 0, 0);
+	XMVECTOR forward = XMVector3Normalize(XMVectorSet(sinPitch * sinYaw, cosPitch, sinPitch * cosYaw, 0.0f));
+	XMVECTOR horizantalForward = XMVector3Normalize(XMVectorSet(sinYaw, 0.0f, cosYaw, 0.0f));
+	float distance = m_Distance;
 
-	XMVECTOR camPos = player - forward * m_Distance + worldUp * m_Height;
-	XMVECTOR target = player + worldUp * m_LookHeight;
+	// pitch < 90 --> up forward
+	// pitch = 90 --> horizontal
+	// pitch > 90 --> down forward
+	float upT = 0.0f;
 
-	//XMVECTOR camPos = XMVectorSet(0.0f, 5.0f, -10.0f, 1.0f);
-	//XMVECTOR target = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	if (m_Pitch < HORIZONTAL_PITCH)
+	{
+		upT = (HORIZONTAL_PITCH - m_Pitch) / (HORIZONTAL_PITCH - MIN_PITCH);
+		upT = (std::max)(0.0f, (std::min)(1.0f, upT));
+	}
+
+	const float minUpDistance = 2.0f;
+	float actualDist = distance + (minUpDistance - distance) * upT;
+
+	// Camera candidate A: look up mode
+	XMVECTOR camPosUp = player - horizantalForward * actualDist + worldUp * m_Height;
+	XMVECTOR targetUp = camPosUp + forward * 10.0f;
+
+	// Camera candidate B: look down mode
+	XMVECTOR camPosDown = player - forward * actualDist + worldUp * m_Height;
+	XMVECTOR targetDown = player + worldUp * m_LookHeight;
+
+	// Smooth blend around 90 degrees
+	float t = (m_Pitch - (HORIZONTAL_PITCH - BLEND_RANGE)) / (BLEND_RANGE * 2.0f);
+	t = (std::max)(0.0f, (std::min)(1.0f, t));
+
+	// smoothstep
+	t = t * t * (3.0f - 2.0f * t);
+	XMVECTOR camPos = XMVectorLerp(camPosUp, camPosDown, t);
+	XMVECTOR target = XMVectorLerp(targetUp, targetDown, t);
 
 	XMStoreFloat3(&m_Position, camPos);
 	XMVECTOR camFront = XMVector3Normalize(target - camPos);
 	XMStoreFloat3(&m_Front, camFront);
-
 	XMMATRIX view = XMMatrixLookAtLH(camPos, target, worldUp);
 	XMStoreFloat4x4(&m_View, view);
 	XMMATRIX invView = XMMatrixInverse(nullptr, view);

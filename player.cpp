@@ -16,7 +16,6 @@
 #include "light.h"
 #include "collision.h"
 #include "Environment_Objects.h"
-//#include "debug_draw_gate.h"
 
 #include <DirectXMath.h>
 #include "Item.h"
@@ -237,46 +236,16 @@ void Player::UpdateMovement(double elapsed_time, const XMFLOAT3& cameraFront)
 
 	XMVECTOR moveDir = front * inputZ + right * inputX;
 
-	//bool isMoving = false;
-	//m_IsMoving = false;
-
 	if (!XMVector3Equal(moveDir, XMVectorZero()))
 	{
 		moveDir = XMVector3Normalize(moveDir);
-		//m_IsMoving = true;
 
-		/*
-		XMStoreFloat3(&m_Front, moveDir);
-
-		XMVECTOR horizVel = moveDir * m_MoveSpeed;
-		velocity = XMVectorSet(
-			XMVectorGetX(horizVel),
-			XMVectorGetY(velocity),
-			XMVectorGetZ(horizVel),
-			0.0f
-		);
-		*/
 		XMVECTOR pos = XMLoadFloat3(&m_Position);
 		pos += moveDir * m_MoveSpeed * (float)elapsed_time;
 
 		XMStoreFloat3(&m_Position, pos);
 		XMStoreFloat3(&m_Front, moveDir);
 	}
-	/*
-	else
-	{
-		// Keep gravity
-		velocity = XMVectorSet(0.0f, XMVectorGetY(velocity), 0.0f, 0.0f);
-	}
-	*/
-
-	/*
-	if (KeyLogger_IsTrigger(KK_SPACE) && IsOnGround())
-	{
-		velocity += XMVectorSet(0.0f, m_JumpVelocity, 0.0f, 0.0f);
-		m_IsJump = true;
-	}
-	*/
 
 	XMStoreFloat3(&m_Velocity, velocity);
 }
@@ -284,7 +253,7 @@ void Player::UpdateMovement(double elapsed_time, const XMFLOAT3& cameraFront)
 // Gravity and collision simulation
 void Player::UpdatePhysics(double elapsed_time)
 {
-	float dt = static_cast<float>(elapsed_time) / 1000.0f;
+	float dt = static_cast<float>(elapsed_time);
 
 	XMVECTOR position = XMLoadFloat3(&m_Position);
 	XMVECTOR velocity = XMLoadFloat3(&m_Velocity);

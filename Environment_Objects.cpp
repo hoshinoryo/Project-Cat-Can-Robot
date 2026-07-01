@@ -188,6 +188,7 @@ namespace EnvironmentObjects
 		}
 	}
 
+
 	// Playfield raycasting
 	// return collision point to outY
 	bool GetPlayFieldY(float x, float z, float& outY)

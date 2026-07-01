@@ -49,7 +49,7 @@ public:
 	//AnimState GetState() const { return m_State; }
 	//void SetState(AnimState state);
 
-	//const AABB& GetAABB() const override { return m_WorldAABB; }
+	const AABB& GetAABB() const { return m_AABB; }
 
 	//bool IsOnGround() const;
 
@@ -64,7 +64,7 @@ private:
 	bool m_IsFall = false;
 	bool m_IsMoving = false;
 
-	float m_MoveSpeed = 0.02f;
+	float m_MoveSpeed = 20.0f;
 	float m_Gravity = 9.8f;
 	float m_JumpVelocity = 40.0f;
 

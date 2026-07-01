@@ -1,9 +1,22 @@
+/*==============================================================================
+
+   ÉAÉCÉeÉÄê∂ê¨Ç∑ÇÈ [Item_Spawner.cpp]
+                                                         Author : Gu Anyi
+                                                         Date   : 2026/06/17
+
+--------------------------------------------------------------------------------
+
+==============================================================================*/
+
 #include "Item_Spawner.h"
 #include "Item.h"
 #include "model_asset.h"
+#include "Player.h"
+#include "Collision.h"
 //#include "Environment_Objects.h"
 
 #include <random>
+#include <algorithm>
 
 using namespace DirectX;
 
@@ -14,7 +27,7 @@ void ItemSpawner::Initialize()
     m_Items.clear();
 
     m_SpawnTimer = 0.0f;
-    m_SpawnInterval = 200.0f;
+    m_SpawnInterval = 1.0f;
 
     m_ItemAsset = ModelAsset_Load("Asset/Environment/Item/Item_Fish.fbx");
 
@@ -28,7 +41,7 @@ void ItemSpawner::Finalize()
     m_ItemAsset = nullptr;
 }
 
-void ItemSpawner::Update(double elapsed_time)
+void ItemSpawner::Update(double elapsed_time, Player& player)
 {
     float dt = static_cast<float>(elapsed_time);
 
@@ -46,6 +59,8 @@ void ItemSpawner::Update(double elapsed_time)
 
         item->Update(elapsed_time);
     }
+
+    CheckCollisionWithPlayer(player);
 
     m_Items.erase(
         std::remove_if(
@@ -73,6 +88,21 @@ void ItemSpawner::Draw(const XMFLOAT3& cameraPosition)
 size_t ItemSpawner::GetItemCount() const
 {
     return m_Items.size();
+}
+
+void ItemSpawner::CheckCollisionWithPlayer(Player& player)
+{
+    const AABB& playerAABB = player.GetAABB();
+
+    for (auto item : m_Items)
+    {
+        if (item->IsDead()) continue;
+
+        if (Collision_IsOverlapAABB(playerAABB, item->GetAABB()))
+        {
+            item->Kill();
+        }
+    }
 }
 
 void ItemSpawner::SpawnItem()

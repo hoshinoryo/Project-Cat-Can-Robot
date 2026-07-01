@@ -15,7 +15,6 @@ int         g_WindowWidth;
 int         g_WindowHeight;
 
 
-
 HWND GetWindow()
 {
     return g_Window;
@@ -106,9 +105,9 @@ int APIENTRY wWinMain(  _In_ HINSTANCE hInstance,
             else
             {
                 dwCurrentTime = timeGetTime();
-                double elapsed_Time = dwCurrentTime - dwExecLastTime;
+                double elapsed_Time =static_cast<double>(dwCurrentTime - dwExecLastTime) / 1000.0f; // second
 
-                if ((elapsed_Time) >= (1000 / 60 / 5))
+                if ((elapsed_Time) >= (1.0 / 60.0))
                 {
                     UpdateManager(elapsed_Time);
                     DrawManager();
