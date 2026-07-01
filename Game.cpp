@@ -8,16 +8,20 @@
 #include "Input.h"
 #include "Light.h"
 #include "Camera.h"
+#include "Texture.h"
 
 #include "Player.h"
 #include "Environment_Objects.h"
 #include "Item_Spawner.h"
+#include "Font_Drawer.h"
 
 
 static int g_AudioBGM;
 static PlayerCamera g_PlayerCamera;
 static Player g_Player;
 static ItemSpawner g_ItemSpawner;
+static FontDrawer g_FontDrawer;
+static Texture g_FontTexture;
 
 
 void Game_Initialize()
@@ -34,6 +38,8 @@ void Game_Initialize()
 	EnvironmentObjects::Initialize();
 	g_Player.Initialize(XMFLOAT3(0.0f, 15.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
 	g_ItemSpawner.Initialize();
+	g_FontTexture.Load(L"Asset\\Font\\chi_font_0.png");
+	g_FontDrawer.LoadContent("Asset\\Font\\chi_font.fnt", g_FontTexture.GetSRV());
 
 	g_AudioBGM = LoadAudio("Asset\\Audio\\BGM.wav");
 	//PlayAudio(g_AudioBGM, true);
@@ -70,6 +76,8 @@ void Game_Update(double elapsed_Time)
 
 void Game_Draw()
 {
+	Renderer3D_Begin();
+
 	g_PlayerCamera.Bind();
 	g_LightManager.BindAllLightsToPipeline();
 
@@ -78,5 +86,14 @@ void Game_Draw()
 	EnvironmentObjects::Draw(cameraPos);
 	g_ItemSpawner.Draw(cameraPos);
 	g_Player.Draw(cameraPos);
+
+	Renderer2D_Begin();
+
+	g_FontDrawer.DrawContent(
+		"test text",
+		{ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f },
+		1.0f,
+		{ 1.0f, 1.0f, 1.0f, 1.0f }
+	);
 }
 

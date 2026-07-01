@@ -92,7 +92,7 @@ void DrawManager()
 		break;
 
 	case SCENE_GAME:
-		Renderer3D_Begin();
+		
 		Game_Draw();
 		break;
 

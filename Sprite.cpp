@@ -4,6 +4,8 @@
 #include "Sprite.h"
 
 
+using namespace DirectX;
+
 ID3D11Buffer* g_VertexBuffer{};
 ID3D11VertexShader* g_VertexShader{};
 ID3D11PixelShader* g_PixelShader{};
@@ -88,7 +90,7 @@ void UninitSprite()
 }
 
 
-XMFLOAT2	GetScrollOffset()
+XMFLOAT2 GetScrollOffset()
 {
 	return ScrollOffset;
 }

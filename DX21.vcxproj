@@ -143,6 +143,7 @@
     <ClCompile Include="d3d11_state_guard_util.cpp" />
     <ClCompile Include="Environment_Objects.cpp" />
     <ClCompile Include="Environment_Objects.h" />
+    <ClCompile Include="Font_Drawer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Item.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="d3d11_state_guard_util.h" />
+    <ClInclude Include="Font_Drawer.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Item.h" />
