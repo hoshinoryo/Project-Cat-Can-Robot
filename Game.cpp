@@ -9,20 +9,19 @@
 #include "Light.h"
 #include "Camera.h"
 #include "Texture.h"
+#include "UI_Manager.h"
 
 #include "Player.h"
 #include "Environment_Objects.h"
 #include "Item_Spawner.h"
-#include "Font_Drawer.h"
 #include "Skybox.h"
 
 
 static int g_AudioBGM;
 static PlayerCamera g_PlayerCamera;
 static Player g_Player;
-static ItemSpawner g_ItemSpawner;
-static FontDrawer g_FontDrawer;
-static Texture g_FontTexture;
+
+ItemSpawner g_ItemSpawner; // for extern use
 
 
 void Game_Initialize()
@@ -39,10 +38,10 @@ void Game_Initialize()
 	EnvironmentObjects::Initialize();
 	g_Player.Initialize(XMFLOAT3(0.0f, 15.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
 	g_ItemSpawner.Initialize();
-	g_FontTexture.Load(L"Asset\\Font\\chi_font_0.png");
-	g_FontDrawer.LoadContent("Asset\\Font\\chi_font.fnt", g_FontTexture.GetSRV());
 
 	Skybox_Initialize();
+
+	UIManager_Initialize();
 
 	g_AudioBGM = LoadAudio("Asset\\Audio\\BGM.wav");
 	//PlayAudio(g_AudioBGM, true);
@@ -72,6 +71,8 @@ void Game_Update(double elapsed_Time)
 	EnvironmentObjects::Update(elapsed_Time);
 	g_ItemSpawner.Update(elapsed_Time, g_Player);
 
+	UIManager_Update(elapsed_Time);
+
 	// Scene switch
 	if (GetKeyTrigger(VK_RETURN))
 	{
@@ -98,12 +99,6 @@ void Game_Draw()
 	// 2D Drawing
 	Renderer2D_Begin();
 
-	std::string itemText = "Count: " + std::to_string(g_ItemSpawner.GetCollectedItemCount());
-	g_FontDrawer.DrawContent(
-		itemText.c_str(),
-		{ SCREEN_WIDTH * 0.05f, SCREEN_HEIGHT * 0.05f },
-		1.0f,
-		{ 1.0f, 1.0f, 1.0f, 1.0f }
-	);
+	UIManager_Draw();
 }
 

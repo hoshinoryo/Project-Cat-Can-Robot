@@ -17,8 +17,8 @@
 #include "Result.h"
 
 static SCENE g_Scene = SCENE_NONE;
-
-
+static double g_SceneTime = 0.0;
+static constexpr double GAME_TIME_LIMIT = 60.0;
 
 
 void InitManager()
@@ -54,6 +54,8 @@ void UpdateManager(double elapsed_Time)
 {
 	UpdateInput();
 
+	g_SceneTime += elapsed_Time;
+
 	switch (g_Scene)
 	{
 	case SCENE_NONE:
@@ -65,6 +67,12 @@ void UpdateManager(double elapsed_Time)
 
 	case SCENE_GAME:
 		Game_Update(elapsed_Time);
+
+		if (g_SceneTime >= GAME_TIME_LIMIT)
+		{
+			SetScene(SCENE_RESULT);
+		}
+
 		break;
 
 	case SCENE_RESULT:
@@ -136,7 +144,7 @@ void SetScene(SCENE Scene)
 
 
 	g_Scene = Scene;
-
+	g_SceneTime = 0.0;
 
 	switch (g_Scene)
 	{
@@ -160,4 +168,14 @@ void SetScene(SCENE Scene)
 	}
 
 
+}
+
+double GetSceneTime()
+{
+	return g_SceneTime;
+}
+
+double GetGameTimeLimit()
+{
+	return GAME_TIME_LIMIT;
 }

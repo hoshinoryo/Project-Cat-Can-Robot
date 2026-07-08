@@ -16,3 +16,6 @@ void UpdateManager(double elapsed_Time);
 void DrawManager();
 
 void SetScene(SCENE Scene);
+
+double GetSceneTime();
+double GetGameTimeLimit();
