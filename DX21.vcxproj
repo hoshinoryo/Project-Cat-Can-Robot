@@ -160,6 +160,7 @@
     <ClCompile Include="Renderer3D.cpp" />
     <ClCompile Include="Renderer_Manager.cpp" />
     <ClCompile Include="Result.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Title.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="Renderer3D.h" />
     <ClInclude Include="Renderer_Manager.h" />
     <ClInclude Include="Result.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Title.h" />

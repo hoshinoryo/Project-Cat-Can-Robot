@@ -26,6 +26,8 @@ void ItemSpawner::Initialize()
 {
     m_Items.clear();
 
+    m_CollectedItemCount = 0;
+
     m_SpawnTimer = 0.0f;
     m_SpawnInterval = 1.0f;
 
@@ -85,22 +87,30 @@ void ItemSpawner::Draw(const XMFLOAT3& cameraPosition)
     }
 }
 
+int ItemSpawner::GetCollectedItemCount() const
+{
+    return m_CollectedItemCount;
+}
+
+/*
 size_t ItemSpawner::GetItemCount() const
 {
     return m_Items.size();
 }
+*/
 
 void ItemSpawner::CheckCollisionWithPlayer(Player& player)
 {
     const AABB& playerAABB = player.GetAABB();
 
-    for (auto item : m_Items)
+    for (std::shared_ptr<Item>& item : m_Items)
     {
         if (item->IsDead()) continue;
 
         if (Collision_IsOverlapAABB(playerAABB, item->GetAABB()))
         {
             item->Kill();
+            m_CollectedItemCount++;
         }
     }
 }

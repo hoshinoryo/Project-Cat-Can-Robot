@@ -28,7 +28,9 @@ public:
 	void Update(double elapsed_time, Player& player);
 	void Draw(const DirectX::XMFLOAT3& cameraPosition);
 
-	size_t GetItemCount() const;
+	//size_t GetItemCount() const;
+
+	int GetCollectedItemCount() const;
 
 private:
 
@@ -41,10 +43,12 @@ private:
 
 	std::vector<std::shared_ptr<Item>> m_Items;
 
+	int m_CollectedItemCount = 0;
+
 	float m_SpawnTimer = 0.0f;
 	float m_SpawnInterval = 0.0f;
 
-	// Spawmer Range
+	// Spawner Range
 	float m_MinX = -30.0f;
 	float m_MaxX = 30.0f;
 	float m_MinZ = -30.0f;

@@ -139,7 +139,7 @@ void FontDrawer::DrawCodePoint(int codePoint, float& penX, float& penY, float sc
         return;
     }
 
-    const FontChar& ch = it->second;
+    const FontChar& ch = it->second; // codePoint to PNG UV
 
     XMFLOAT2 drawPos{};
     drawPos.x = penX + ch.xOffset * scale + ch.width * scale * 0.5f;
@@ -168,5 +168,5 @@ void FontDrawer::DrawCodePoint(int codePoint, float& penX, float& penY, float sc
         color
     );
 
-    penX += ch.xAdvance * scale;
+    penX += ch.xAdvance * scale; // update draw position
 }

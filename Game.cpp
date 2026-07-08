@@ -14,6 +14,7 @@
 #include "Environment_Objects.h"
 #include "Item_Spawner.h"
 #include "Font_Drawer.h"
+#include "Skybox.h"
 
 
 static int g_AudioBGM;
@@ -41,6 +42,8 @@ void Game_Initialize()
 	g_FontTexture.Load(L"Asset\\Font\\chi_font_0.png");
 	g_FontDrawer.LoadContent("Asset\\Font\\chi_font.fnt", g_FontTexture.GetSRV());
 
+	Skybox_Initialize();
+
 	g_AudioBGM = LoadAudio("Asset\\Audio\\BGM.wav");
 	//PlayAudio(g_AudioBGM, true);
 }
@@ -50,6 +53,8 @@ void Game_Finalize()
 	UnloadAudio(g_AudioBGM);
 
 	//3D
+	Skybox_Finalize();
+
 	g_ItemSpawner.Finalize();
 	g_Player.Finalize();
 	EnvironmentObjects::Finalize();
@@ -76,7 +81,10 @@ void Game_Update(double elapsed_Time)
 
 void Game_Draw()
 {
+	// 3D Drawing
 	Renderer3D_Begin();
+
+	Skybox_Draw();
 
 	g_PlayerCamera.Bind();
 	g_LightManager.BindAllLightsToPipeline();
@@ -87,11 +95,13 @@ void Game_Draw()
 	g_ItemSpawner.Draw(cameraPos);
 	g_Player.Draw(cameraPos);
 
+	// 2D Drawing
 	Renderer2D_Begin();
 
+	std::string itemText = "Count: " + std::to_string(g_ItemSpawner.GetCollectedItemCount());
 	g_FontDrawer.DrawContent(
-		"test text",
-		{ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f },
+		itemText.c_str(),
+		{ SCREEN_WIDTH * 0.05f, SCREEN_HEIGHT * 0.05f },
 		1.0f,
 		{ 1.0f, 1.0f, 1.0f, 1.0f }
 	);
