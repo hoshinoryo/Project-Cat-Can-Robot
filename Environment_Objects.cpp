@@ -171,7 +171,7 @@ namespace EnvironmentObjects
 		if (!asset) return;
 
 		EnvironmentObject object;
-		object.m_Name = name;
+		object.m_ObjectTag = name;
 		object.m_Asset = asset;
 		object.m_Position = position;
 		object.m_Rotation = rotation;
@@ -204,7 +204,7 @@ namespace EnvironmentObjects
 
 		for (const EnvironmentObject& object : g_EnvironmentObjects)
 		{
-			if (object.m_Name != "playField") continue;
+			if (object.m_ObjectTag != "playField") continue;
 			if (!object.m_Asset) continue;
 
 			XMMATRIX world = CreateWorldMatrix(object);

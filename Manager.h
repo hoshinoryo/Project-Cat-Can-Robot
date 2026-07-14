@@ -17,5 +17,7 @@ void DrawManager();
 
 void SetScene(SCENE Scene);
 
-double GetSceneTime();
-double GetGameTimeLimit();
+double Manager_GetSceneTime();
+double Manager_GetGameTimeLimit();
+
+int Manager_GetResultItemCount();

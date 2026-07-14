@@ -4,7 +4,7 @@
 #include "Manager.h"
 #include "Sprite.h"
 #include "Game.h"
-#include "Audio.h"
+//#include "Audio.h"
 #include "Input.h"
 #include "Light.h"
 #include "Camera.h"
@@ -43,13 +43,13 @@ void Game_Initialize()
 
 	UIManager_Initialize();
 
-	g_AudioBGM = LoadAudio("Asset\\Audio\\BGM.wav");
+	//g_AudioBGM = LoadAudio("Asset\\Audio\\bgm.wav");
 	//PlayAudio(g_AudioBGM, true);
 }
 
 void Game_Finalize()
 {
-	UnloadAudio(g_AudioBGM);
+	//UnloadAudio(g_AudioBGM);
 
 	//3D
 	Skybox_Finalize();
@@ -98,7 +98,6 @@ void Game_Draw()
 
 	// 2D Drawing
 	Renderer2D_Begin();
-
-	UIManager_Draw();
+	UIManager_GameDraw();
 }
 

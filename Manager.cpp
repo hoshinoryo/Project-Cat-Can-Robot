@@ -9,16 +9,21 @@
 
 #include "Sprite.h"
 #include "Input.h"
-#include "Audio.h"
+//#include "Audio.h"
 #include "Mouse.h"
 
 #include "Title.h"
 #include "Game.h"
 #include "Result.h"
+#include "Item_Spawner.h"
 
+
+extern ItemSpawner g_ItemSpawner;
+
+static constexpr double GAME_TIME_LIMIT = 60.0;
 static SCENE g_Scene = SCENE_NONE;
 static double g_SceneTime = 0.0;
-static constexpr double GAME_TIME_LIMIT = 60.0;
+static int g_ResultItemCount = 0;
 
 
 void InitManager()
@@ -30,17 +35,17 @@ void InitManager()
 	Mouse_Initialize(GetWindow());
 	
 	InitSprite();
-	InitAudio();
+	//InitAudio();
 
 	// ---- START SCENE SETTING ----
-	SetScene(SCENE_GAME); // from game scene
+	SetScene(SCENE_TITLE); // from game scene
 }
 
 void UninitManager()
 {
 	SetScene(SCENE_NONE);
 
-	UninitAudio();
+	//UninitAudio();
 	UninitSprite();
 
 	Mouse_Finalize();
@@ -70,6 +75,7 @@ void UpdateManager(double elapsed_Time)
 
 		if (g_SceneTime >= GAME_TIME_LIMIT)
 		{
+			g_ResultItemCount = g_ItemSpawner.GetScore(); // copy the count to result
 			SetScene(SCENE_RESULT);
 		}
 
@@ -170,12 +176,17 @@ void SetScene(SCENE Scene)
 
 }
 
-double GetSceneTime()
+double Manager_GetSceneTime()
 {
 	return g_SceneTime;
 }
 
-double GetGameTimeLimit()
+double Manager_GetGameTimeLimit()
 {
 	return GAME_TIME_LIMIT;
+}
+
+int Manager_GetResultItemCount()
+{
+	return g_ResultItemCount;
 }

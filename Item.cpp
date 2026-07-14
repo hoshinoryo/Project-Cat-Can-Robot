@@ -12,10 +12,17 @@
 
 using namespace DirectX;
 
-Item::Item()
+Item::Item(ItemTag tag)
+    : m_Tag(tag)
 {
-    m_Name = "Item";
-    m_Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    m_ObjectTag = "Item";
+}
+
+void Item::Initialize(XMFLOAT3 position, XMFLOAT3 rotation, XMFLOAT3 scale)
+{
+    m_Position = position;
+    m_Rotation = rotation;
+    m_Scale = scale;
 }
 
 void Item::Update(double elapsed_time)

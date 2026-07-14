@@ -181,6 +181,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="Item_Spawner.h" />
+    <ClInclude Include="Item_Tag.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="Manager.h" />

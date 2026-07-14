@@ -21,7 +21,7 @@ namespace EnvironmentObjects
 
 	public:
 
-		std::string m_Name;
+		std::string m_ObjectTag;
 		ModelAsset* m_Asset{};
 
 		DirectX::XMFLOAT3 m_Position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);

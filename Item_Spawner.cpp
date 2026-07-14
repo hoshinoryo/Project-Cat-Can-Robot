@@ -13,8 +13,8 @@
 #include "model_asset.h"
 #include "Player.h"
 #include "Collision.h"
-//#include "Environment_Objects.h"
 
+#include <cstdlib>
 #include <random>
 #include <algorithm>
 
@@ -26,12 +26,11 @@ void ItemSpawner::Initialize()
 {
     m_Items.clear();
 
-    m_CollectedItemCount = 0;
+    //m_CollectedItemCount = 0;
+    m_Score = 0;
 
     m_SpawnTimer = 0.0f;
     m_SpawnInterval = 1.0f;
-
-    m_ItemAsset = ModelAsset_Load("Asset/Environment/Item/Item_Fish.fbx");
 
     SpawnItem();
 }
@@ -40,7 +39,7 @@ void ItemSpawner::Finalize()
 {
     m_Items.clear();
 
-    m_ItemAsset = nullptr;
+    //m_ItemAsset = nullptr;
 }
 
 void ItemSpawner::Update(double elapsed_time, Player& player)
@@ -87,18 +86,6 @@ void ItemSpawner::Draw(const XMFLOAT3& cameraPosition)
     }
 }
 
-int ItemSpawner::GetCollectedItemCount() const
-{
-    return m_CollectedItemCount;
-}
-
-/*
-size_t ItemSpawner::GetItemCount() const
-{
-    return m_Items.size();
-}
-*/
-
 void ItemSpawner::CheckCollisionWithPlayer(Player& player)
 {
     const AABB& playerAABB = player.GetAABB();
@@ -109,30 +96,35 @@ void ItemSpawner::CheckCollisionWithPlayer(Player& player)
 
         if (Collision_IsOverlapAABB(playerAABB, item->GetAABB()))
         {
+            m_Score += item->GetScore();
+
             item->Kill();
-            m_CollectedItemCount++;
+            //m_CollectedItemCount++;
         }
     }
 }
 
 void ItemSpawner::SpawnItem()
 {
-    if (!m_ItemAsset) return;
+    //if (!m_ItemAsset) return;
 
     std::uniform_real_distribution<float> distX(m_MinX, m_MaxX);
     std::uniform_real_distribution<float> distZ(m_MinZ, m_MaxZ);
 
-    std::shared_ptr<Item> item = std::make_shared<Item>();
-
-    item->m_Asset = m_ItemAsset;
-    item->m_Position =
+    ItemTag tag = ItemTag::ITEM_TAG_MAX; // Random tag
+    int randomValue = rand() % 100;
+    if (randomValue < 60)
     {
-        distX(g_Random),
-        m_SpawnY,
-        distZ(g_Random)
-    };
-    item->m_Rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    item->m_Scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+        tag = ItemTag::BOMB;
+    }
+    else
+    {
+        tag = ItemTag::FISH;
+    }
+    std::shared_ptr<Item> item = std::make_shared<Item>(tag);
+
+    item->m_Asset = ModelAsset_Load(GetItemAssetPath(item->GetTag()));
+    item->Initialize({ distX(g_Random), m_SpawnY, distZ(g_Random) });
 
     m_Items.push_back(item);
 }

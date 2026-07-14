@@ -47,7 +47,7 @@ void Player::Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOA
 	m_IsJump = false;
 
 	// Load player asset
-	m_Asset = ModelAsset_Load("Asset/Character/Player.FBX", true, 0.5f);
+	m_Asset = ModelAsset_Load("Asset/Character/Player.FBX", true, 0.8f);
 
 	UpdateAABB();
 

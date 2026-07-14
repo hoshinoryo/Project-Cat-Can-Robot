@@ -28,9 +28,7 @@ public:
 	void Update(double elapsed_time, Player& player);
 	void Draw(const DirectX::XMFLOAT3& cameraPosition);
 
-	//size_t GetItemCount() const;
-
-	int GetCollectedItemCount() const;
+	int GetScore() const { return m_Score; }
 
 private:
 
@@ -39,11 +37,9 @@ private:
 
 private:
 
-	ModelAsset* m_ItemAsset = nullptr;
-
 	std::vector<std::shared_ptr<Item>> m_Items;
 
-	int m_CollectedItemCount = 0;
+	int m_Score = 0;
 
 	float m_SpawnTimer = 0.0f;
 	float m_SpawnInterval = 0.0f;

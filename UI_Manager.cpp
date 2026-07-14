@@ -9,43 +9,11 @@
 
 extern ItemSpawner g_ItemSpawner;
 
+// static
 namespace
 {
 	FontDrawer g_FontDrawer;
 	Texture g_FontTexture;
-
-	void DrawGameUIText()
-	{
-		// Item Counter
-		std::string itemText = "Count  " + std::to_string(g_ItemSpawner.GetCollectedItemCount());
-		g_FontDrawer.DrawContent(
-			itemText.c_str(),
-			{ SCREEN_WIDTH * 0.05f, SCREEN_HEIGHT * 0.05f },
-			1.0f,
-			{ 1.0f, 1.0f, 1.0f, 1.0f }
-		);
-
-		// Time Counter
-		int remainTime = static_cast<int>(GetGameTimeLimit() - GetSceneTime());
-		if (remainTime < 0)
-		{
-			remainTime = 0;
-		}
-
-		std::string timeText = "Time  " + std::to_string(remainTime);
-		g_FontDrawer.DrawContent(
-			timeText.c_str(),
-			{ SCREEN_WIDTH * 0.8f, SCREEN_HEIGHT * 0.05f },
-			1.0f,
-			{ 1.0f, 1.0f, 1.0f, 1.0f }
-		);
-	}
-
-	/*
-	void DrawDebugUI()
-	{
-	}
-	*/
 }
 
 
@@ -63,8 +31,41 @@ void UIManager_Update(double elapsed_time)
 {
 }
 
-void UIManager_Draw()
+void UIManager_GameDraw()
 {
-	DrawGameUIText();
-	//DrawDebugUI();
+	// Item score
+	std::string itemText = "Score  " + std::to_string(g_ItemSpawner.GetScore());
+	g_FontDrawer.DrawContent(
+		itemText.c_str(),
+		{ SCREEN_WIDTH * 0.05f, SCREEN_HEIGHT * 0.05f },
+		1.0f,
+		{ 1.0f, 1.0f, 1.0f, 1.0f }
+	);
+
+	// Time Counter
+	int remainTime = static_cast<int>(Manager_GetGameTimeLimit() - Manager_GetSceneTime());
+	if (remainTime < 0)
+	{
+		remainTime = 0;
+	}
+
+	std::string timeText = "Time  " + std::to_string(remainTime);
+	g_FontDrawer.DrawContent(
+		timeText.c_str(),
+		{ SCREEN_WIDTH * 0.8f, SCREEN_HEIGHT * 0.05f },
+		1.0f,
+		{ 1.0f, 1.0f, 1.0f, 1.0f }
+	);
+}
+
+void UIManager_ResultDraw()
+{
+	// Score
+	std::string scoreText = std::to_string(Manager_GetResultItemCount());
+	g_FontDrawer.DrawContent(
+		scoreText.c_str(),
+		{ SCREEN_WIDTH * 0.2f, SCREEN_HEIGHT * 0.35f },
+		8.0f,
+		{ 0.2f, 0.2f, 0.2f, 1.0f }
+	);
 }

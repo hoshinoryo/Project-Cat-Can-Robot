@@ -22,6 +22,9 @@
     <Filter Include="Model_Importer">
       <UniqueIdentifier>{bea795cb-c401-48c5-b34a-647435bad9cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Item_System">
+      <UniqueIdentifier>{79358515-d4ee-4c5b-851d-445d77f54b8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -108,12 +111,6 @@
     <ClCompile Include="WICTextureLoader11.cpp">
       <Filter>Renderer_Frame</Filter>
     </ClCompile>
-    <ClCompile Include="Item.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Item_Spawner.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Font_Drawer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -122,6 +119,12 @@
     </ClCompile>
     <ClCompile Include="UI_Manager.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Item_Spawner.cpp">
+      <Filter>Item_System</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Item_System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,12 +206,6 @@
     <ClInclude Include="Mouse.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Item.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Item_Spawner.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Font_Drawer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -217,6 +214,15 @@
     </ClInclude>
     <ClInclude Include="UI_Manager.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Item_Spawner.h">
+      <Filter>Item_System</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>Item_System</Filter>
+    </ClInclude>
+    <ClInclude Include="Item_Tag.h">
+      <Filter>Item_System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

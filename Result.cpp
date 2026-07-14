@@ -4,6 +4,7 @@
 #include "Sprite.h"
 #include "Result.h"
 #include "Input.h"
+#include "UI_Manager.h"
 
 
 static ID3D11ShaderResourceView* g_Texture{};
@@ -41,8 +42,9 @@ void UpdateResult()
 
 void DrawResult()
 {
-
 	DrawSprite(false, g_Texture,
 				{ SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f },
 				{ SCREEN_WIDTH, SCREEN_HEIGHT });
+
+	UIManager_ResultDraw();
 }
