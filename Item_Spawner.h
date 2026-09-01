@@ -26,7 +26,11 @@ public:
 	void Finalize();
 
 	void Update(double elapsed_time, Player& player);
-	void Draw(const DirectX::XMFLOAT3& cameraPosition);
+	void Draw(
+		const DirectX::XMFLOAT3& cameraPosition,
+		const DirectX::XMFLOAT4X4& view,
+		const DirectX::XMFLOAT4X4& projection
+	);
 
 	int GetScore() const { return m_Score; }
 

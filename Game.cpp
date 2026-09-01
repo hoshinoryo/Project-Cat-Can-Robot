@@ -92,8 +92,8 @@ void Game_Draw()
 
 	XMFLOAT3 cameraPos = g_PlayerCamera.GetPosition();
 
-	EnvironmentObjects::Draw(cameraPos);
-	g_ItemSpawner.Draw(cameraPos);
+	EnvironmentObjects::Draw(cameraPos, g_PlayerCamera.GetView(), g_PlayerCamera.GetProj());
+	g_ItemSpawner.Draw(cameraPos, g_PlayerCamera.GetView(), g_PlayerCamera.GetProj());
 	g_Player.Draw(cameraPos);
 
 	// 2D Drawing

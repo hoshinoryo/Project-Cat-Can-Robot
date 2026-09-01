@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <random>
 #include <algorithm>
+#include <DirectXCollision.h>
 
 using namespace DirectX;
 
@@ -76,13 +77,35 @@ void ItemSpawner::Update(double elapsed_time, Player& player)
     );
 }
 
-void ItemSpawner::Draw(const XMFLOAT3& cameraPosition)
+void ItemSpawner::Draw(
+    const DirectX::XMFLOAT3& cameraPosition,
+    const DirectX::XMFLOAT4X4& view,
+    const DirectX::XMFLOAT4X4& projection
+)
 {
+    BoundingFrustum viewFrustum;
+
+    BoundingFrustum::CreateFromMatrix(viewFrustum, XMLoadFloat4x4(&projection));
+
+    const XMMATRIX inverseView = XMMatrixInverse(nullptr, XMLoadFloat4x4(&view));
+
+    BoundingFrustum worldFrustum;
+    viewFrustum.Transform(worldFrustum, inverseView);
+
     for (std::shared_ptr<Item>& item : m_Items)
     {
-        if (!item) continue;
+        if (!item || item->IsDead()) continue;
 
-        item->Draw(cameraPosition);
+        const AABB itemAABB = item->GetAABB();
+
+        BoundingBox itemBounds{};
+        itemBounds.Center = itemAABB.GetCenter();
+        itemBounds.Extents = itemAABB.GetHalf();
+
+        if (!worldFrustum.Intersects(itemBounds)) continue;
+
+        item->BuildStaticCache();
+        item->Draw(cameraPosition,worldFrustum);
     }
 }
 

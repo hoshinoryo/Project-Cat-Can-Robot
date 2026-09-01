@@ -15,12 +15,10 @@
 //#include "unlit_shader.h"
 //#include "default3Dmaterial.h"
 #include "Texture.h"
-//#include "debug_ostream.h"
 
 using namespace DirectX;
 
 //extern Default3DMaterial g_DefaultSceneMaterial;
-//extern ShadowPass g_ShadowPass;
 
 static Texture g_TextureWhite;
 static Texture g_NormalFlat;
@@ -82,6 +80,7 @@ void ModelRenderer_Draw(
 	if (!ctx) return;
 
 	MeshAsset& mesh = asset->meshes[meshIndex];
+	if (!mesh.vertexBuffer || !mesh.indexBuffer || mesh.indexCount == 0) return;
 
 	g_ModelShader.Begin();
 	g_ModelShader.SetWorldMatrix(world);
@@ -103,24 +102,8 @@ void ModelRenderer_Draw(
 	else
 	{
 		g_ModelShader.SetColor({ 1, 1, 1, 1 });
-		g_ModelShader.SetSpecularParams(
-			cameraPos,
-			32.0f,
-			{ 1, 1, 1, 1 }
-		);
+		g_ModelShader.SetSpecularParams(cameraPos, 32.0f, { 1, 1, 1, 1 });
 	}
-
-	// Choose the material for this mesh
-	/*
-	Default3DMaterial* mat = &g_DefaultSceneMaterial;
-	if (mesh.materialIndex < asset->materials.size() && asset->materials[mesh.materialIndex])
-	{
-		mat = asset->materials[mesh.materialIndex];
-	}
-
-	mat->Apply(shader, cameraPos); // bind texture to shader
-	*/
-
 
 	// Binding SRV
 	ID3D11ShaderResourceView* diffuseSRV  = nullptr;
@@ -136,14 +119,6 @@ void ModelRenderer_Draw(
 		if (!mat->SpecularMapPath.empty())
 			specularSRV = FindSRV(asset, mat->SpecularMapPath);
 	}
-
-	//const std::string& diffuseKey  = mat->GetDiffuseMapPath();
-	//const std::string& normalKey   = mat->GetNormalMapPath();
-	//const std::string& specularKey = mat->GetSpecularMapPath();
-
-	//if (!diffuseKey.empty()) diffuseSRV = FindSRV(asset, diffuseKey);
-	//if (!normalKey.empty()) normalSRV = FindSRV(asset, normalKey);
-	//if (!specularKey.empty()) specularSRV = FindSRV(asset, specularKey);
 
 	if (!diffuseSRV) diffuseSRV = g_TextureWhite.GetSRV();
 	if (!normalSRV) normalSRV = g_NormalFlat.GetSRV();
@@ -180,6 +155,7 @@ void ModelRenderer_UnlitDraw(
 	if (meshIndex >= asset->meshes.size()) return;
 
 	MeshAsset& mesh = asset->meshes[meshIndex];
+	if (!mesh.vertexBuffer || !mesh.indexBuffer || mesh.indexCount == 0) return;
 	if (mesh.skinned) return;
 
 	g_ModelShader.Begin();
@@ -201,18 +177,6 @@ void ModelRenderer_UnlitDraw(
 	}
 
 	if (!diffuseSRV) diffuseSRV = g_TextureWhite.GetSRV();
-
-	/*
-	Default3DMaterial* mat = &g_DefaultSceneMaterial;
-	if (mesh.materialIndex < asset->materials.size() && asset->materials[mesh.materialIndex])
-		mat = asset->materials[mesh.materialIndex];
-
-	const std::string& diffuseKey = mat->GetDiffuseMapPath();
-	if (!diffuseKey.empty()) 
-		diffuseSRV = FindSRV(asset, diffuseKey);
-	if (!diffuseSRV) 
-		diffuseSRV = g_TextureWhite.GetSRV();
-	*/
 
 	BindPS_SRV(0, diffuseSRV);
 
@@ -237,8 +201,8 @@ void ModelRenderer_DrawDepth(ModelAsset* asset, uint32_t meshIndex, const Direct
 	if (meshIndex >= asset->meshes.size()) return;
 
 	MeshAsset& mesh = asset->meshes[meshIndex];
+	if (!mesh.vertexBuffer || !mesh.indexBuffer || mesh.indexCount == 0) return;
 	
-	//Default3DShader& shader = mesh.skinned ? g_Default3DshaderSkinned : g_Default3DshaderStatic;
 	g_ModelShader.BeginDepthOnly();
 	g_ModelShader.SetWorldMatrix(world);
 

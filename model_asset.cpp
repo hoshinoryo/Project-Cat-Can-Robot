@@ -92,8 +92,17 @@ ModelAsset* ModelAsset_Load(const char* filename, bool yUp, float scale)
 		for (unsigned int v = 0; v < mesh->mNumVertices; v++)
 		{
 			out.cpuVertices[v].Position = XMFLOAT3{ mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z }; // position
-			out.cpuVertices[v].Normal   = XMFLOAT3{ mesh->mNormals[v].x,  mesh->mNormals[v].y,  mesh->mNormals[v].z };  // normal
+			//out.cpuVertices[v].Normal   = XMFLOAT3{ mesh->mNormals[v].x,  mesh->mNormals[v].y,  mesh->mNormals[v].z };  // normal
 			out.cpuVertices[v].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); // vertex color
+
+			if (mesh->HasNormals())
+			{
+				out.cpuVertices[v].Normal = XMFLOAT3{ mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z };
+			}
+			else
+			{
+				out.cpuVertices[v].Normal = XMFLOAT3{ 0.0f, 1.0f, 0.0f };
+			}
 
 			// Tangent
 			if (mesh->mTangents)
@@ -129,35 +138,44 @@ ModelAsset* ModelAsset_Load(const char* filename, bool yUp, float scale)
 		//delete[] vertex;
 
 		// Index buffer
-		//unsigned int* index = new unsigned int[mesh->mNumFaces * 3];
+		out.cpuIndices.clear();
 		out.cpuIndices.resize(mesh->mNumFaces * 3);
 
 		for (unsigned int f = 0; f < mesh->mNumFaces; f++)
 		{
-			const aiFace* face = &mesh->mFaces[f];
-			assert(face->mNumIndices == 3);
+			const aiFace& face = mesh->mFaces[f];
+			//assert(face->mNumIndices == 3);
+			if (face.mNumIndices < 3) continue;
 
-			out.cpuIndices[f * 3 + 0] = face->mIndices[0];
-			out.cpuIndices[f * 3 + 1] = face->mIndices[1];
-			out.cpuIndices[f * 3 + 2] = face->mIndices[2];
+			for (unsigned int i = 1; i + 1 < face.mNumIndices; i++)
+			{
+				out.cpuIndices.push_back(face.mIndices[0]);
+				out.cpuIndices.push_back(face.mIndices[i]);
+				out.cpuIndices.push_back(face.mIndices[i + 1]);
+			}
 		}
 
-		D3D11_BUFFER_DESC ibd;
-		ZeroMemory(&ibd, sizeof(ibd));
-		ibd.Usage = D3D11_USAGE_DEFAULT;
-		ibd.ByteWidth = UINT(sizeof(unsigned int) * mesh->mNumFaces * 3);
-		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		ibd.CPUAccessFlags = 0;
+		out.indexCount = static_cast<uint32_t>(out.cpuIndices.size());
 
-		D3D11_SUBRESOURCE_DATA isd;
-		ZeroMemory(&isd, sizeof(isd));
-		isd.pSysMem = out.cpuIndices.data();
+		if (!out.cpuIndices.empty())
+		{
+			D3D11_BUFFER_DESC ibd{};
+			ibd.Usage = D3D11_USAGE_DEFAULT;
+			ibd.ByteWidth = static_cast<UINT>(sizeof(uint32_t) * out.cpuIndices.size());
+			ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+			ibd.CPUAccessFlags = 0;
 
-		RendererManager_GetDevice()->CreateBuffer(&ibd, &isd, &out.indexBuffer);
+			D3D11_SUBRESOURCE_DATA isd{};
+			isd.pSysMem = out.cpuIndices.data();
 
-		//delete[] index;
+			const HRESULT hr = RendererManager_GetDevice()->CreateBuffer(&ibd, &isd, &out.indexBuffer);
 
-		out.indexCount = mesh->mNumFaces * 3;
+			if (FAILED(hr))
+			{
+				out.indexBuffer = nullptr;
+				out.indexCount = 0;
+			}
+		}
 	}
 
 	// Model file path analyzation
