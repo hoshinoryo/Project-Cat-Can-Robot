@@ -66,8 +66,18 @@ int APIENTRY wWinMain(  _In_ HINSTANCE hInstance,
         g_WindowWidth = rc.right - rc.left;
         g_WindowHeight = rc.bottom - rc.top;
 
-        g_Window = CreateWindow(CLASS_NAME, APP_NAME, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-            rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, g_Instance, nullptr);
+        RECT workArea{};
+        SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
+
+        int windowX = workArea.left + ((workArea.right - workArea.left) - g_WindowWidth) / 2;
+        int windowY = workArea.top + ((workArea.bottom - workArea.top) - g_WindowHeight) / 2;
+
+        g_Window = CreateWindow(CLASS_NAME, APP_NAME,
+            WS_OVERLAPPEDWINDOW,
+            windowX, windowY,
+            g_WindowWidth, g_WindowHeight,
+            nullptr, nullptr,
+            g_Instance, nullptr);
     }
 
     CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);

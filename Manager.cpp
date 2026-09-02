@@ -59,7 +59,7 @@ void UpdateManager(double elapsed_Time)
 {
 	UpdateInput();
 
-	g_SceneTime += elapsed_Time;
+	//g_SceneTime += elapsed_Time;
 
 	switch (g_Scene)
 	{
@@ -67,21 +67,33 @@ void UpdateManager(double elapsed_Time)
 		break;
 
 	case SCENE_TITLE:
+		g_SceneTime += elapsed_Time;
+
 		UpdateTitle();
 		break;
 
 	case SCENE_GAME:
+	{
+		// Read the state before updating
+		const bool wasPlaying = Game_IsPlaying();
 		Game_Update(elapsed_Time);
 
-		if (g_SceneTime >= GAME_TIME_LIMIT)
+		if (wasPlaying)
 		{
-			g_ResultItemCount = g_ItemSpawner.GetScore(); // copy the count to result
-			SetScene(SCENE_RESULT);
+			g_SceneTime += elapsed_Time;
+
+			if (g_SceneTime >= GAME_TIME_LIMIT)
+			{
+				g_ResultItemCount = g_ItemSpawner.GetScore(); // copy the count to result
+				SetScene(SCENE_RESULT);
+			}
 		}
 
 		break;
-
+	}
 	case SCENE_RESULT:
+		g_SceneTime += elapsed_Time;
+
 		UpdateResult();
 		break;
 
