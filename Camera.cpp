@@ -14,6 +14,7 @@
 #include "Renderer_Manager.h"
 #include "mouse.h"
 #include "model_shader.h"
+#include "Environment_Objects.h"
 
 using namespace DirectX;
 
@@ -169,6 +170,23 @@ void PlayerCamera::UpdateMatrices()
 	t = t * t * (3.0f - 2.0f * t);
 	XMVECTOR camPos = XMVectorLerp(camPosUp, camPosDown, t);
 	XMVECTOR target = XMVectorLerp(targetUp, targetDown, t);
+
+	// Prevent the camera from going below the playfield
+	XMFLOAT3 cameraPosition{};
+	XMStoreFloat3(&cameraPosition, camPos);
+
+	float groundY = 0.0f;
+	constexpr float CAMERA_GROUND_CLEARANCE = 0.5f;
+
+	if (EnvironmentObjects::GetPlayFieldY(cameraPosition.x, cameraPosition.z, groundY))
+	{
+		const float minimumCameraY = groundY + CAMERA_GROUND_CLEARANCE;
+
+		if (cameraPosition.y < minimumCameraY)
+		{
+			camPos = XMVectorSetY(camPos, minimumCameraY);
+		}
+	}
 
 	XMStoreFloat3(&m_Position, camPos);
 	XMVECTOR camFront = XMVector3Normalize(target - camPos);

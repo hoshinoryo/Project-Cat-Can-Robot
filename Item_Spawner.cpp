@@ -146,7 +146,7 @@ void ItemSpawner::SpawnItem()
     }
     std::shared_ptr<Item> item = std::make_shared<Item>(tag);
 
-    item->m_Asset = ModelAsset_Load(GetItemAssetPath(item->GetTag()));
+    item->m_Asset = ModelAsset_Load(GetItemAssetPath(item->GetTag()), true);
     item->Initialize({ distX(g_Random), m_SpawnY, distZ(g_Random) });
 
     m_Items.push_back(item);
