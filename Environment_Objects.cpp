@@ -108,6 +108,7 @@ namespace EnvironmentObjects
 		{
 			const MeshAsset& mesh = object.m_Asset->meshes[meshIndex];
 
+			if (mesh.Name != "SM_PlayField") continue;
 			if (meshIndex >= object.m_StaticMeshes.size()) continue;
 
 			const XMMATRIX world = XMLoadFloat4x4(&object.m_StaticMeshes[meshIndex].world);
@@ -153,6 +154,7 @@ namespace EnvironmentObjects
 		{
 			if (meshIndex >= m_StaticMeshes.size()) continue;
 
+			const MeshAsset& mesh = m_Asset->meshes[meshIndex];
 			const StaticMeshCache& cache = m_StaticMeshes[meshIndex];
 
 			BoundingBox meshBounds{};
@@ -160,6 +162,16 @@ namespace EnvironmentObjects
 			meshBounds.Extents = cache.worldAABB.GetHalf();
 
 			if (!cameraFrustum.Intersects(meshBounds)) continue;
+			const bool useAABBCollision = m_ObjectTag == "playField"
+				&& mesh.Name != "SM_PlayField"
+				&& mesh.Name != "SM_Fence"
+				&& mesh.Name != "SM_Bush_TypeA"
+				&& mesh.Name != "SM_Bush_TypeB";
+
+			if (useAABBCollision)
+			{
+				CollisionSystem::AddCollidersAABB(cache.worldAABB);
+			}
 
 			const XMMATRIX finalWorld = XMLoadFloat4x4(&cache.world);
 
@@ -263,6 +275,8 @@ namespace EnvironmentObjects
 		const DirectX::XMFLOAT4X4& projection
 	)
 	{
+		CollisionSystem::ClearColliders();
+
 		BoundingFrustum viewFrustum;
 		BoundingFrustum::CreateFromMatrix(viewFrustum, XMLoadFloat4x4(&projection));
 

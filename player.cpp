@@ -16,9 +16,11 @@
 #include "light.h"
 #include "collision.h"
 #include "Environment_Objects.h"
+#include "Item.h"
 
 #include <DirectXMath.h>
-#include "Item.h"
+#include <cmath>
+
 
 using namespace DirectX;
 
@@ -60,19 +62,11 @@ void Player::Initialize(const DirectX::XMFLOAT3& position, const DirectX::XMFLOA
 	int idleId = AnimationManager::Instance().RegisterClip(idleClip);
 	m_ClipIdle = AnimationManager::Instance().GetClipById(idleId);
 
-	AnimationClip* walkClip = Animation_LoadFromFile("resources/Animation/Walking.fbx", m_Asset, true);
-	int walkId = AnimationManager::Instance().RegisterClip(walkClip);
-	m_ClipWalk = AnimationManager::Instance().GetClipById(walkId);
-
 	m_ClipRun = nullptr;
 
 	AnimationClip* jumpClip = Animation_LoadFromFile("resources/Animation/Jump.fbx", m_Asset, true);
 	int jumpId = AnimationManager::Instance().RegisterClip(jumpClip);
 	m_ClipJump = AnimationManager::Instance().GetClipById(jumpId);
-
-	AnimationClip* fallClip = Animation_LoadFromFile("resources/Animation/Falling.fbx", m_Asset, true);
-	int fallId = AnimationManager::Instance().RegisterClip(fallClip);
-	m_ClipFall = AnimationManager::Instance().GetClipById(fallId);
 
 	// Initialize state
 	ChangeState(AnimState::Idle);
@@ -90,9 +84,6 @@ void Player::Finalize()
 	/*
 	m_ClipIdle = nullptr;
 	m_ClipWalk = nullptr;
-	m_ClipRun = nullptr;
-	m_ClipJump = nullptr;
-	m_ClipFall = nullptr;
 
 	delete m_AnimPlayer;
 	m_AnimPlayer = nullptr;
@@ -253,33 +244,55 @@ void Player::UpdateMovement(double elapsed_time, const XMFLOAT3& cameraFront)
 // Gravity and collision simulation
 void Player::UpdatePhysics(double elapsed_time)
 {
-	float dt = static_cast<float>(elapsed_time);
+	const float dt = static_cast<float>(elapsed_time);
 
 	XMVECTOR position = XMLoadFloat3(&m_Position);
 	XMVECTOR velocity = XMLoadFloat3(&m_Velocity);
 
-	// Gravity
-	if (!m_IsGround)
-	{
-		float velocityY = XMVectorGetY(velocity);
-		velocityY -= m_Gravity * dt;
-		velocity = XMVectorSetY(velocity, velocityY);
-	}
+	// gravity
+	float velocityY = XMVectorGetY(velocity);
+	velocityY -= m_Gravity * dt;
+	velocity = XMVectorSetY(velocity, velocityY);
 
 	position += velocity * dt;
 
-	XMFLOAT3 nextPositon{}; // position at next frame
-	XMStoreFloat3(&nextPositon, position);
+	XMFLOAT3 nextPosition{};
+	XMStoreFloat3(&nextPosition, position);
 
-	m_Position = nextPositon; // write back
+	constexpr float MOVE_RADIUS = 50.0f;
+	constexpr float MOVE_RADIUS_SQ = MOVE_RADIUS * MOVE_RADIUS;
+
+	auto ClampToMoveRange = [](XMFLOAT3& value)
+		{
+			const float distanceSq = value.x * value.x + value.z * value.z;
+
+			if (distanceSq > MOVE_RADIUS_SQ)
+			{
+				const float scale = MOVE_RADIUS / std::sqrt(distanceSq);
+
+				value.x *= scale;
+				value.z *= scale;
+			}
+		};
+
+	ClampToMoveRange(nextPosition);
+
+	m_Position = nextPosition;
 	UpdateAABB();
 
-	//bool grounded = false;
-	//CollisionSystem::ResolveAgainstScene(m_AABB, m_Position, 4, &grounded); // “–‚½‚è”»’è
-	float groundY = 0.0f;
-	bool grounded = EnvironmentObjects::GetPlayFieldY(m_Position.x, m_Position.z, groundY);
+	CollisionSystem::ResolveAgainstSceneXZ(m_AABB, m_Position, 4);
 
-	if (grounded && m_Position.y <= groundY)
+	ClampToMoveRange(m_Position);
+	UpdateAABB();
+
+	float groundY = 0.0f;
+
+	const bool hasPlayField =
+		EnvironmentObjects::GetPlayFieldY(m_Position.x, m_Position.z, groundY);
+
+	const bool isFalling = XMVectorGetY(velocity) <= 0.0f;
+
+	if (hasPlayField && isFalling && m_Position.y <= groundY)
 	{
 		m_Position.y = groundY;
 		velocity = XMVectorSetY(velocity, 0.0f);
@@ -296,9 +309,6 @@ void Player::UpdatePhysics(double elapsed_time)
 
 	XMStoreFloat3(&m_Velocity, velocity);
 	UpdateAABB();
-
-	//CheckFallState(prevGround);
-	//ResetIfFallen(KILL_Y, { 0.0f, 0.0f, 0.0f });
 }
 
 /*
@@ -449,23 +459,5 @@ bool Player::CheckGroundProbe(float probe) const
 	}
 
 	return false;
-}
-
-void Player::ResetIfFallen(float killY, const DirectX::XMFLOAT3& respawnPos)
-{
-	if (m_Position.y < killY)
-	{
-		m_Position = respawnPos;
-		m_Velocity = { 0.0f, 0.0f, 0.0f };
-		m_IsJump = false;
-		m_IsGround = false;
-
-		UpdateAABB();
-	}
-}
-
-bool Player::IsOnGround() const
-{
-	return m_IsGround;
 }
 */

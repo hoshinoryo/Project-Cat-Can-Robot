@@ -52,6 +52,8 @@ struct ModelMaterial
 // aiMesh‚²‚Æ‚ÉŠÇ—‚³‚ê‚Ä‚é
 struct MeshAsset
 {
+	std::string Name;
+
 	ID3D11Buffer* vertexBuffer = nullptr;
 	ID3D11Buffer* indexBuffer = nullptr;
 	uint32_t indexCount = 0;

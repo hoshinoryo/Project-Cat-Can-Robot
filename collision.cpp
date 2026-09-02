@@ -383,3 +383,55 @@ bool CollisionSystem::ResolveAgainstScene(
 
 	return anyHit;
 }
+
+bool CollisionSystem::ResolveAgainstSceneXZ(AABB& playerAABB, DirectX::XMFLOAT3& position, int maxIterations)
+{
+	bool anyHit = false;
+
+	constexpr float EPSILON = 0.0005f;
+
+	for (int iteration = 0; iteration < maxIterations; iteration++)
+	{
+		bool hitThisIteration = false;
+
+		for (const AABB& sceneAABB : g_Colliders)
+		{
+			if (!Collision_IsOverlapAABB(playerAABB, sceneAABB)) continue;
+
+			anyHit = true;
+			hitThisIteration = true;
+
+			const float moveNegativeX = sceneAABB.min.x - playerAABB.max.x - EPSILON;
+			const float movePositiveX = sceneAABB.max.x - playerAABB.min.x + EPSILON;
+			const float deltaX = fabsf(moveNegativeX) < fabsf(movePositiveX)
+				? moveNegativeX
+				: movePositiveX;
+
+			const float moveNegativeZ = sceneAABB.min.z - playerAABB.max.z - EPSILON;
+			const float movePositiveZ = sceneAABB.max.z - playerAABB.min.z + EPSILON;
+			const float deltaZ = fabsf(moveNegativeZ) < fabsf(movePositiveZ)
+				? moveNegativeZ
+				: movePositiveZ;
+
+			XMFLOAT3 correction{ 0.0f, 0.0f, 0.0f };
+
+			if (fabsf(deltaX) <= fabsf(deltaZ))
+			{
+				correction.x = deltaX;
+			}
+			else
+			{
+				correction.z = deltaZ;
+			}
+
+			position.x += correction.x;
+			position.z += correction.z;
+
+			playerAABB = Collision_TranslateAABB(playerAABB, correction);
+		}
+
+		if (!hitThisIteration) break;
+	}
+
+	return anyHit;
+}

@@ -56,11 +56,21 @@ ModelAsset* ModelAsset_Load(const char* filename, bool yUp, float scale)
 	const std::string modelPath(filename);
 
 	// ---- Assimp import setting ----
+	/*
 	asset->aiScene = aiImportFile(
 		filename,
 		aiProcessPreset_TargetRealtime_MaxQuality |
 		aiProcess_ConvertToLeftHanded
 	);
+	*/
+	const unsigned int importFlags =
+		(static_cast<unsigned int>(aiProcessPreset_TargetRealtime_MaxQuality) &
+			~static_cast<unsigned int>(aiProcess_FindInstances | aiProcess_OptimizeMeshes)
+			) |
+		static_cast<unsigned int>(aiProcess_ConvertToLeftHanded);
+
+	asset->aiScene = aiImportFile(filename, importFlags);
+
 	assert(asset->aiScene);
 
 	//SkeletonUtil::BuildBoneNameToIndexTable(asset->aiScene, asset->boneNameToIndex);
@@ -79,6 +89,7 @@ ModelAsset* ModelAsset_Load(const char* filename, bool yUp, float scale)
 	{
 		aiMesh* mesh = asset->aiScene->mMeshes[m];
 		MeshAsset& out = asset->meshes[m];
+		out.Name = mesh->mName.C_Str();
 
 		out.skinned = (mesh->mNumBones > 0);
 		out.materialIndex = mesh->mMaterialIndex;
@@ -139,7 +150,7 @@ ModelAsset* ModelAsset_Load(const char* filename, bool yUp, float scale)
 
 		// Index buffer
 		out.cpuIndices.clear();
-		out.cpuIndices.resize(mesh->mNumFaces * 3);
+		out.cpuIndices.reserve(mesh->mNumFaces * 3);
 
 		for (unsigned int f = 0; f < mesh->mNumFaces; f++)
 		{

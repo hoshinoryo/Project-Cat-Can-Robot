@@ -1,8 +1,8 @@
 /*==============================================================================
 
 Å@ 3DÉRÉäÉWÉáÉìîªíË [collision.h]
-														 Author : Youhei Sato
-														 Date   : 2025/12/23
+														 Author : Gu Anyi
+														 Date   : 2026/09/02
 --------------------------------------------------------------------------------
 
 ==============================================================================*/
@@ -78,6 +78,12 @@ namespace CollisionSystem
 		DirectX::XMFLOAT3& position,
 		int maxIterations = 4,
 		bool* outGround = nullptr
+	);
+
+	bool ResolveAgainstSceneXZ(
+		AABB& playerAABB,
+		DirectX::XMFLOAT3& position,
+		int maxIterations = 4
 	);
 
 };
