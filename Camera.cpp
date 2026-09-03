@@ -94,10 +94,14 @@ void PlayerCamera::UpdateInput(double elapsed_time)
 	Mouse_State mouseState{};
 	Mouse_GetState(&mouseState);
 
-	float mouse_dx = (float)(mouseState.x - m_LastMouseX);
-	float mouse_dy = (float)(mouseState.y - m_LastMouseY);
-	m_LastMouseX = mouseState.x;
-	m_LastMouseY = mouseState.y;
+	float mouse_dx = 0.0f;
+	float mouse_dy = 0.0f;
+
+	if (mouseState.positionMode == MOUSE_POSITION_MODE_RELATIVE)
+	{
+		mouse_dx = static_cast<float>(mouseState.x);
+		mouse_dy = static_cast<float>(mouseState.y);
+	}
 
 	bool enableLook = true;
 

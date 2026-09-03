@@ -67,8 +67,8 @@ private:
 	ID3D11Buffer* m_pVSConstantBufferView = nullptr;
 	ID3D11Buffer* m_pVSConstantBufferProj = nullptr;
 
-	int m_LastMouseX = 0;
-	int m_LastMouseY = 0;
+	//int m_LastMouseX = 0;
+	//int m_LastMouseY = 0;
 
 };
 

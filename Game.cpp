@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "UI_Manager.h"
+#include "Mouse.h"
 
 #include "Player.h"
 #include "Environment_Objects.h"
@@ -66,6 +67,7 @@ void Game_Initialize()
 
 void Game_Finalize()
 {
+	Mouse_SetMode(MOUSE_POSITION_MODE_ABSOLUTE);
 	//UnloadAudio(g_AudioBGM);
 
 	//3D
@@ -86,6 +88,7 @@ void Game_Update(double elapsed_Time)
 	{
 		if (GetKeyTrigger(VK_RETURN))
 		{
+			Mouse_SetMode(MOUSE_POSITION_MODE_RELATIVE);
 			g_GamePhase = GamePhase::Playing;
 		}
 

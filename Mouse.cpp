@@ -69,6 +69,13 @@ void Mouse_Initialize(HWND window)
 
 void Mouse_Finalize(void)
 {
+    ClipCursor(nullptr);
+
+    if (gMode == MOUSE_POSITION_MODE_RELATIVE && gInFocus)
+    {
+        ShowCursor(TRUE);
+    }
+
     SAFE_CLOSEHANDLE(gScrollWheelValue);
     SAFE_CLOSEHANDLE(gRelativeRead);
     SAFE_CLOSEHANDLE(gAbsoluteMode);
@@ -100,6 +107,9 @@ void Mouse_GetState(Mouse_State* pState)
         else {
             SetEvent(gRelativeRead);
         }
+
+        gState.x = 0;
+        gState.y = 0;
     }
 }
 
@@ -227,10 +237,22 @@ void Mouse_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
                 clipToWindow();
             }
         }
-        else {
+        else
+        {
+            ClipCursor(nullptr);
+
+            if (gInFocus && gMode == MOUSE_POSITION_MODE_RELATIVE)
+            {
+                ShowCursor(TRUE);
+            }
+
             int scrollWheel = gState.scrollWheelValue;
             memset(&gState, 0, sizeof(gState));
             gState.scrollWheelValue = scrollWheel;
+
+            gRelativeX = INT32_MAX;
+            gRelativeY = INT32_MAX;
+
             gInFocus = false;
         }
         return;
@@ -247,8 +269,12 @@ void Mouse_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
 
                 if (!(raw.data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)) {
 
+                    /*
                     gState.x = raw.data.mouse.lLastX;
                     gState.y = raw.data.mouse.lLastY;
+                    */
+                    gState.x += raw.data.mouse.lLastX;
+                    gState.y += raw.data.mouse.lLastY;
 
                     ResetEvent(gRelativeRead);
                 }
@@ -261,12 +287,18 @@ void Mouse_ProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
                     int x = (int)((raw.data.mouse.lLastX / 65535.0f) * width);
                     int y = (int)((raw.data.mouse.lLastY / 65535.0f) * height);
 
-                    if (gRelativeX == INT32_MAX) {
+                    if (gRelativeX == INT32_MAX)
+                    {
                         gState.x = gState.y = 0;
                     }
-                    else {
+                    else
+                    {
+                        /*
                         gState.x = x - gRelativeX;
                         gState.y = y - gRelativeY;
+                        */
+                        gState.x += x - gRelativeX;
+                        gState.y += y - gRelativeY;
                     }
 
                     gRelativeX = x;
