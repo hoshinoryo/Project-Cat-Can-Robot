@@ -117,6 +117,25 @@ AABB Item::GetAABB() const
     return aabb;
 }
 
+bool Item::IsVisible() const
+{
+    if (m_IsDead) return false;
+    if (!m_IsGround) return true;
+
+    constexpr float BLINK_INTERVAL = 0.1f;
+    constexpr int BLINK_COUNT = 3;
+
+    constexpr float BLINK_DURATION = BLINK_INTERVAL * 2.0f * BLINK_COUNT;
+
+    const float blinkStartTime = m_EraseTime - BLINK_DURATION;
+    const float blinkTime = m_EraseTimer - blinkStartTime;
+
+    if (blinkTime < 0.0f) return true;
+
+    const int phase = static_cast<int>(blinkTime / BLINK_INTERVAL);
+    return (phase % 2) != 0;
+}
+
 bool Item::IsDead() const
 {
     return m_IsDead;

@@ -94,7 +94,7 @@ void ItemSpawner::Draw(
 
     for (std::shared_ptr<Item>& item : m_Items)
     {
-        if (!item || item->IsDead()) continue;
+        if (!item || !item->IsVisible()) continue;
 
         const AABB itemAABB = item->GetAABB();
 

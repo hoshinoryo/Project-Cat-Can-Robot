@@ -32,6 +32,7 @@ public:
 	ItemTag GetTag() const { return m_Tag; }
 	int GetScore() const { return GetItemScore(m_Tag); }
 
+	bool IsVisible() const;
 	bool IsDead() const;
 	void Kill();
 
