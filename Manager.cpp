@@ -9,7 +9,7 @@
 
 #include "Sprite.h"
 #include "Input.h"
-//#include "Audio.h"
+#include "Audio.h"
 #include "Mouse.h"
 
 #include "Title.h"
@@ -35,7 +35,7 @@ void InitManager()
 	Mouse_Initialize(GetWindow());
 	
 	InitSprite();
-	//InitAudio();
+	InitAudio();
 
 	// ---- START SCENE SETTING ----
 	SetScene(SCENE_TITLE); // from game scene
@@ -45,7 +45,7 @@ void UninitManager()
 {
 	SetScene(SCENE_NONE);
 
-	//UninitAudio();
+	UninitAudio();
 	UninitSprite();
 
 	Mouse_Finalize();

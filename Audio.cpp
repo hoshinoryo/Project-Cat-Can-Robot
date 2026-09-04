@@ -2,9 +2,10 @@
 #include "main.h"
 #include "audio.h"
 
+#include <xaudio2.h>
+#include <assert.h>
 
-
-
+#pragma comment(lib, "winmm.lib")
 
 
 static IXAudio2* g_Xaudio{};
@@ -13,11 +14,40 @@ static IXAudio2MasteringVoice* g_MasteringVoice{};
 
 void InitAudio()
 {
+	/*
 	// XAudio生成
 	XAudio2Create(&g_Xaudio, 0);
 
 	// マスタリングボイス生成
 	g_Xaudio->CreateMasteringVoice(&g_MasteringVoice);
+	*/
+	HRESULT hr = XAudio2Create(&g_Xaudio, 0);
+	if (FAILED(hr))
+	{
+		char message[128];
+		sprintf_s(message,
+			"XAudio2Create failed: 0x%08X\n",
+			static_cast<unsigned int>(hr));
+		OutputDebugStringA(message);
+
+		g_Xaudio = nullptr;
+		return;
+	}
+
+	hr = g_Xaudio->CreateMasteringVoice(&g_MasteringVoice);
+	if (FAILED(hr))
+	{
+		char message[128];
+		sprintf_s(message,
+			"CreateMasteringVoice failed: 0x%08X\n",
+			static_cast<unsigned int>(hr));
+		OutputDebugStringA(message);
+
+		g_Xaudio->Release();
+		g_Xaudio = nullptr;
+		g_MasteringVoice = nullptr;
+		return;
+	}
 }
 
 
@@ -123,9 +153,19 @@ int LoadAudio(const char *FileName)
 
 
 	// サウンドソース生成
-	g_Xaudio->CreateSourceVoice(&g_Audio[index].SourceVoice, &wfx);
+	HRESULT hr = g_Xaudio->CreateSourceVoice(&g_Audio[index].SourceVoice, &wfx);
 	assert(g_Audio[index].SourceVoice);
+	/*
+	if (FAILED(hr))
+	{
+		char message[128];
+		sprintf_s(message, "CreateSourceVoice failed: 0x%08X\n", static_cast<unsigned int>(hr));
+		OutputDebugStringA(message);
 
+		return -1;
+	}
+	*/
+	
 
 	return index;
 }

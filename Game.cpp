@@ -5,7 +5,7 @@
 #include "Manager.h"
 #include "Sprite.h"
 #include "Game.h"
-//#include "Audio.h"
+#include "Audio.h"
 #include "Input.h"
 #include "Light.h"
 #include "Camera.h"
@@ -27,7 +27,7 @@ enum class GamePhase
 
 static GamePhase g_GamePhase = GamePhase::WaitingForStart;
 
-static int g_AudioBGM;
+static int g_GameBgm = -1;
 static PlayerCamera g_PlayerCamera;
 static Player g_Player;
 static Texture g_GuideTexture;
@@ -61,14 +61,21 @@ void Game_Initialize()
 	g_PlayerCamera.SetFollowTarget(&g_Player.GetPosition());
 	g_PlayerCamera.Update(0.0);
 
-	//g_AudioBGM = LoadAudio("Asset\\Audio\\bgm.wav");
-	//PlayAudio(g_AudioBGM, true);
+	g_GameBgm = LoadAudio("Asset/Audio/Sweet_Fun_and_Happy_Loop.wav");
+	if (g_GameBgm != -1)
+	{
+		PlayAudio(g_GameBgm, true);
+	}
 }
 
 void Game_Finalize()
 {
 	Mouse_SetMode(MOUSE_POSITION_MODE_ABSOLUTE);
-	//UnloadAudio(g_AudioBGM);
+	if (g_GameBgm != -1)
+	{
+		UnloadAudio(g_GameBgm);
+		g_GameBgm = -1;
+	}
 
 	//3D
 	Skybox_Finalize();
